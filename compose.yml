@@ -1,0 +1,28 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: sql_sense_redis
+    networks:
+      - sql_sense_network
+      
+  backend:
+    build: ./api
+    container_name: sql_sense_backend
+    ports:
+      - "3001:3000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_REFRESH_TTL=604800
+
+      - JWT_SECRET=9e2d9502a1e30e2c4ddb8dcc3f9a9018
+      - JWT_ACCESS_EXPIRATION=1h
+      - JWT_REFRESH_EXPIRATION=7d
+    depends_on:
+      - redis
+    networks:
+      - sql_sense_network
+
+networks:
+  sql_sense_network:
+    driver: bridge
