@@ -48,8 +48,10 @@ services:
       - AI_MAX_TOKENS=2048
       - AI_TIMEOUT=30000
     depends_on:
-      - redis
-      - postgres
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     networks:
       - sql_sense_network
 
