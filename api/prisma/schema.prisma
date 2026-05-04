@@ -9,23 +9,14 @@ datasource db {
   schemas  = ["academic", "auth", "challenge", "evaluation"]
 }
 
-enum UserRole {
-  ADMIN
-  STUDENT
-  PROFESSOR
-
-  @@schema("auth")
-}
-
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  
-  role      UserRole  @default(STUDENT)
-  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  id                  Int                   @id @default(autoincrement())
+  email               String                @unique
+  password            String
+  role                user_role             @default(STUDENT)
+  createdAt           DateTime?             @default(now()) @map("created_at") @db.Timestamp(6)
   course_students     CourseStudent[]
-  courses             Course[]    
+  courses             Course[]
   challenges          challenges[]
   submissions         submissions[]
   evaluation_attempts evaluation_attempts[]
@@ -176,4 +167,12 @@ enum submission_status {
   OPTIMIZATION_REQUIRED
 
   @@schema("challenge")
+}
+
+enum user_role {
+  ADMIN
+  STUDENT
+  PROFESSOR
+
+  @@schema("auth")
 }
