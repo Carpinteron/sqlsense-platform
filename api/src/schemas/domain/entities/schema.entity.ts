@@ -16,3 +16,10 @@ export interface GenerateSchemaResponse {
   };
   sql: string;
 }
+
+export interface RegenerateSchemaInput {
+  prompt: string;
+  previousSchema: { tables: SchemaTable[] };
+  previousSql: string;
+  variationLevel?: number; // 0.0–1.0, defaults to 0.5
+}
