@@ -9,12 +9,10 @@ import { JwtStrategy } from './infrastructure/guards/jwt.strategy';
 import { UserRepository } from './infrastructure/persistence/user.repository';
 import { LoginUseCase } from './application/use-cases/login.use-case';
 import { LogoutUseCase } from './application/use-cases/logout.use-case';
-import { PrismaModule } from '../shared/infrastructure/prisma/prisma.module';
 
 @Module({
   imports: [
     ConfigModule,
-    PrismaModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
