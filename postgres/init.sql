@@ -17,21 +17,16 @@ CREATE SCHEMA IF NOT EXISTS "evaluation";
 -- =========================================
 -- AUTH MODULE
 -- =========================================
-CREATE TABLE "auth"."roles" (
-    "id" SERIAL NOT NULL,
-    "name" VARCHAR(20) NOT NULL,
-    CONSTRAINT "roles_pkey" PRIMARY KEY ("id")
-);
+CREATE TYPE "auth"."user_role" AS ENUM ('ADMIN', 'STUDENT', 'PROFESSOR');
 
 CREATE TABLE "auth"."users" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "role_id" INTEGER,
+    "role" "auth"."user_role" NOT NULL DEFAULT 'STUDENT', -- Cambio aquí
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
-
 -- =========================================
 -- ACADEMIC MODULE (COURSES)
 -- =========================================
@@ -144,11 +139,7 @@ CREATE TABLE "evaluation"."evaluations" (
 -- =========================================
 -- INDEXES (IMPORTANT FOR PERFORMANCE)
 -- =========================================
-CREATE UNIQUE INDEX "roles_name_key" ON "auth"."roles" ("name");
-
 CREATE UNIQUE INDEX "users_email_key" ON "auth"."users" ("email");
-
-CREATE INDEX "idx_users_role" ON "auth"."users" ("role_id");
 
 CREATE UNIQUE INDEX "courses_code_key" ON "academic"."courses" ("code");
 
@@ -167,9 +158,6 @@ CREATE INDEX "idx_evaluations_course" ON "evaluation"."evaluations" ("course_id"
 -- =========================================
 -- FOREIGN KEYS
 -- =========================================
-ALTER TABLE "auth"."users"
-ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "auth"."roles" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
-
 ALTER TABLE "academic"."courses"
 ADD CONSTRAINT "courses_professor_id_fkey" FOREIGN KEY ("professor_id") REFERENCES "auth"."users" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
@@ -205,3 +193,18 @@ ADD CONSTRAINT "evaluation_challenges_evaluation_id_fkey" FOREIGN KEY ("evaluati
 
 ALTER TABLE "evaluation"."evaluations"
 ADD CONSTRAINT "evaluations_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "academic"."courses" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+
+
+-- =========================================
+-- SEED DATA (USUARIO DE PRUEBA)
+-- =========================================
+
+-- Insertar un administrador por defecto
+-- Contraseña: 123456
+INSERT INTO "auth"."users" ("email", "password", "role") 
+VALUES (
+    'admin@sqlsense.com', 
+    '$2b$10$M/kq/PF4.AVHaKe8xG3HLeIlTXVqdLMXHqA6QxTF.pIDDTjWCUNV6', 
+    'ADMIN'
+);

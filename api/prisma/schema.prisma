@@ -9,29 +9,27 @@ datasource db {
   schemas  = ["academic", "auth", "challenge", "evaluation"]
 }
 
-model Role {
-  id    Int    @id @default(autoincrement())
-  name  String @unique @db.VarChar(20)
-  users User[]
+enum UserRole {
+  ADMIN
+  STUDENT
+  PROFESSOR
 
-  @@map("roles")
   @@schema("auth")
 }
 
 model User {
-  id                  Int                   @id @default(autoincrement())
-  email               String                @unique
-  password            String
-  role_id             Int?
-  createdAt           DateTime?             @default(now()) @map("created_at") @db.Timestamp(6)
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  
+  role      UserRole  @default(STUDENT)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
   course_students     CourseStudent[]
-  courses             Course[]
-  roles               Role?                 @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  courses             Course[]    
   challenges          challenges[]
   submissions         submissions[]
   evaluation_attempts evaluation_attempts[]
 
-  @@index([role_id], map: "idx_users_role")
   @@map("users")
   @@schema("auth")
 }
