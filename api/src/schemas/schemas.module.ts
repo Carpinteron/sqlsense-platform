@@ -4,6 +4,7 @@ import { SchemasController } from './infrastructure/controller/schemas.controlle
 import { GenerateSchemaUseCase } from './application/use-cases/generate-schema.use-case';
 import { RegenerateSchemaUseCase } from './application/use-cases/regenerate-schema.use-case';
 import { AiSchemaAdapter } from './infrastructure/adapters/ai-schema.adapter';
+import { AiSchemaResponseMapper } from './infrastructure/mappers/ai-schema-response.mapper';
 
 @Module({
   imports: [AiModule],
@@ -11,6 +12,7 @@ import { AiSchemaAdapter } from './infrastructure/adapters/ai-schema.adapter';
   providers: [
     GenerateSchemaUseCase,
     RegenerateSchemaUseCase,
+    AiSchemaResponseMapper,
     {
       provide: 'ISchemaGeneratorPort',
       useClass: AiSchemaAdapter,

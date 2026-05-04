@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import type { ISchemaGeneratorPort } from '../../domain/ports/schema-generator.port';
+import type { ISchemaGeneratorPort } from '../../domain/repositories/schema-generator.port';
 import type {
   GenerateSchemaResponse,
   RegenerateSchemaInput,
