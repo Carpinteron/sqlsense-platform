@@ -5,7 +5,6 @@ COPY package*.json ./
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 RUN npm install
 COPY . .
-RUN npx prisma db pull
 RUN npx prisma generate
 RUN npm run build
 
