@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AiService } from './ai.service';
+import { LmStudioService } from './infrastructure/lm-studio.service';
 
 @Module({
   imports: [ConfigModule],
-  providers: [AiService],
-  exports: [AiService],
+  providers: [
+    {
+      provide: 'IAiGeneratorPort',
+      useClass: LmStudioService,
+    },
+  ],
+  exports: ['IAiGeneratorPort'],
 })
 export class AiModule {}
