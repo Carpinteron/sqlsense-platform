@@ -45,8 +45,8 @@ services:
       - AI_ENDPOINT=https://chat.homelab.builders/v1/chat/completions
       - AI_MODEL=google/gemma-4-e4b
       - AI_TEMPERATURE=0
-      - AI_MAX_TOKENS=2048
-      - AI_TIMEOUT=30000
+      - AI_MAX_TOKENS=65536
+      - AI_TIMEOUT=60000
     depends_on:
       - redis
       - postgres
