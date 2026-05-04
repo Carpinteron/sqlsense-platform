@@ -4,11 +4,7 @@ import { PrismaService } from '../../../shared/infrastructure/prisma/prisma.serv
 import type { Curso } from '../../domain/entities/curso.entity';
 import type { ICursoRepository } from '../../domain/repositories/curso.repository';
 
-type CourseRow = Prisma.CourseGetPayload<{
-  include: {
-    users: true;
-  };
-}>;
+type CourseRow = Prisma.CourseGetPayload<{}>;
 
 @Injectable()
 export class CursoRepository implements ICursoRepository {
@@ -21,10 +17,7 @@ export class CursoRepository implements ICursoRepository {
         code: course.code,
         period: course.period,
         groupNumber: course.groupNumber ?? null,
-        professor_id: course.professorId ?? null,
-      },
-      include: {
-        users: true,
+        professor_id: course.professorId ,
       },
     });
 
@@ -34,25 +27,24 @@ export class CursoRepository implements ICursoRepository {
   async findById(id: string): Promise<Curso | null> {
     const course = await this.prismaService.course.findUnique({
       where: { id },
-      include: {
-        users: true,
-      },
     });
 
     return course ? this.toDomain(course) : null;
   }
 
-  async findAll(filter?: { professorId?: string; period?: string }): Promise<Curso[]> {
+  async findAll(filter?: { professorId?: number; period?: string }): Promise<Curso[]> {
+    const where: any = {};
+    if (filter?.professorId !== undefined) {
+      where.professor_id = filter.professorId;
+    }
+    if (filter?.period !== undefined) {
+      where.period = filter.period;
+    }
+
     const courses = await this.prismaService.course.findMany({
-      where: {
-        professor_id: filter?.professorId,
-        period: filter?.period,
-      },
+      where,
       orderBy: {
         createdAt: 'desc',
-      },
-      include: {
-        users: true,
       },
     });
 
@@ -62,9 +54,6 @@ export class CursoRepository implements ICursoRepository {
   async findByCode(code: string): Promise<Curso | null> {
     const course = await this.prismaService.course.findUnique({
       where: { code },
-      include: {
-        users: true,
-      },
     });
 
     return course ? this.toDomain(course) : null;
@@ -79,11 +68,8 @@ export class CursoRepository implements ICursoRepository {
         ...(updates.period !== undefined ? { period: updates.period } : {}),
         ...(updates.groupNumber !== undefined ? { groupNumber: updates.groupNumber } : {}),
         ...(updates.professorId !== undefined
-          ? { professor_id: updates.professorId }
+          ? { professor_id: Number(updates.professorId) }
           : {}),
-      },
-      include: {
-        users: true,
       },
     });
 

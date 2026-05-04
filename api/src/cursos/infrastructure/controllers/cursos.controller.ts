@@ -68,11 +68,14 @@ export class CursosController {
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
-  async crearCurso(@Body() body: Omit<Curso, 'id' | 'createdAt'>, @Request() req) {
+  async crearCurso(@Body() body: any, @Request() req) {
     try {
       // Asignar el profesor actual al curso
-      const cursoData = {
-        ...body,
+      const cursoData: Omit<Curso, 'id' | 'createdAt'> = {
+        name: body.name,
+        code: body.code,
+        period: body.period,
+        groupNumber: body.groupNumber,
         professorId: req.user.id,
       };
       return await this.crearCursoUseCase.execute(cursoData);
@@ -89,7 +92,7 @@ export class CursosController {
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
   async updateCurso(
     @Param('id') id: string,
-    @Body() updates: Partial<Omit<Curso, 'id' | 'createdAt'>>,
+    @Body() updates: any,
     @Request() req,
   ) {
     try {
@@ -104,8 +107,13 @@ export class CursosController {
         );
       }
 
-      // No permitir cambiar el profesor
-      const { professorId, ...safeUpdates } = updates;
+      // No permitir cambiar el profesor - crear objeto seguro con tipos correctos
+      const safeUpdates: Partial<Omit<Curso, 'id' | 'createdAt'>> = {};
+      if (updates.name !== undefined) safeUpdates.name = updates.name;
+      if (updates.code !== undefined) safeUpdates.code = updates.code;
+      if (updates.period !== undefined) safeUpdates.period = updates.period;
+      if (updates.groupNumber !== undefined) safeUpdates.groupNumber = updates.groupNumber;
+
       return await this.updateCursoUseCase.execute(id, safeUpdates);
     } catch (error) {
       if (error instanceof Error && error.message.includes('no encontrado')) {

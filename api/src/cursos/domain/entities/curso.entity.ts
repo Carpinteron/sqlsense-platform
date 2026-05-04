@@ -4,6 +4,6 @@ export interface Curso {
   code: string;
   period: string;
   groupNumber?: string; // corresponds to group_number
-  professorId?: string; // UUID referencing auth.users(id)
+  professorId?: number; // Int referencing auth.users(id)
   createdAt?: Date | string;
 }

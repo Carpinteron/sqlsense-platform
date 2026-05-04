@@ -1,7 +1,8 @@
-import { ICursoRepository } from "src/cursos/domain/repositories/curso.repository";
+import { Inject } from '@nestjs/common';
+import type { ICursoRepository } from "src/cursos/domain/repositories/curso.repository";
 
 export class DeleteCursoUseCase {
-    constructor(private readonly cursoRepository: ICursoRepository) { }
+    constructor(@Inject('CURSO_REPOSITORY') private readonly cursoRepository: ICursoRepository) { }
     
     async execute(id: string): Promise<void> {
         // Validar que el curso exista antes de eliminar
