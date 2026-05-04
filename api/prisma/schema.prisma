@@ -9,27 +9,20 @@ datasource db {
   schemas  = ["academic", "auth", "challenge", "evaluation"]
 }
 
-enum UserRole {
-  ADMIN
-  STUDENT
-  PROFESSOR
-
-  @@schema("auth")
-}
-
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  
-  role      UserRole  @default(STUDENT)
-  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  id                  Int                   @id @default(autoincrement())
+  email               String                @unique
+  password            String
+  role_id             Int?
+  createdAt           DateTime?             @default(now()) @map("created_at") @db.Timestamp(6)
   course_students     CourseStudent[]
-  courses             Course[]    
+  courses             Course[]
+  roles               roles?                @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   challenges          challenges[]
   submissions         submissions[]
   evaluation_attempts evaluation_attempts[]
 
+  @@index([role_id], map: "idx_users_role")
   @@map("users")
   @@schema("auth")
 }
@@ -147,6 +140,14 @@ model evaluations {
 
   @@index([course_id], map: "idx_evaluations_course")
   @@schema("evaluation")
+}
+
+model roles {
+  id    Int    @id @default(autoincrement())
+  name  String @unique @db.VarChar(20)
+  users User[]
+
+  @@schema("auth")
 }
 
 enum difficulty_enum {
