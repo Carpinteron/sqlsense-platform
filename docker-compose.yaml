@@ -33,6 +33,8 @@ services:
       - REDIS_PORT=6379
       - REDIS_REFRESH_TTL=604800
 
+      - DATABASE_URL=postgresql://appuser:supersecret_dev@postgres/appdb
+
       - JWT_SECRET=9e2d9502a1e30e2c4ddb8dcc3f9a9018
       - JWT_ACCESS_EXPIRATION=1h
       - JWT_REFRESH_EXPIRATION=7d

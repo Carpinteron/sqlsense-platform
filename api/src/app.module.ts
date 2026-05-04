@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
 
 @Module({
@@ -10,7 +11,8 @@ import { RedisModule } from './shared/infrastructure/redis/redis.module';
       envFilePath: '.env',
     }),
 
-    RedisModule,  
+    RedisModule,
+    PrismaModule,
     AuthModule,
   ],
 })
