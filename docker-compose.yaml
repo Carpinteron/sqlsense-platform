@@ -55,6 +55,19 @@ services:
     networks:
       - sql_sense_network
 
+  worker:
+    build: ./worker
+    container_name: sql_sense_worker
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_REFRESH_TTL=604800
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - sql_sense_network
+
 volumes:
   database_data:
 
