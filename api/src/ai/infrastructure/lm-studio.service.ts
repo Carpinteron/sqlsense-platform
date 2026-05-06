@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { IAiGeneratorPort } from '../domain/ports/ai-generator.port';
+import type { IAiGeneratorPort } from '../domain/repositories/ai-generator.port';
 
 @Injectable()
 export class LmStudioService implements IAiGeneratorPort {

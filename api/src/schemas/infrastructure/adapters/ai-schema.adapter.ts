@@ -1,10 +1,11 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
-import type { IAiGeneratorPort } from '../../../ai/domain/ports/ai-generator.port';
-import type { ISchemaGeneratorPort } from '../../domain/ports/schema-generator.port';
+import { Injectable, Inject } from '@nestjs/common';
+import type { IAiGeneratorPort } from '../../../ai/domain/repositories/ai-generator.port';
+import type { ISchemaGeneratorPort } from '../../domain/repositories/schema-generator.port';
 import type {
   GenerateSchemaResponse,
   RegenerateSchemaInput,
 } from '../../domain/entities/schema.entity';
+import { AiSchemaResponseMapper } from '../mappers/ai-schema-response.mapper';
 
 const SYSTEM_PROMPT = `You are a database schema generator. Your task is to infer and generate a relational database schema from ANY input — whether it is a natural language description, an SQL challenge, a query problem, or a data scenario.
 
@@ -43,17 +44,18 @@ Rules:
 export class AiSchemaAdapter implements ISchemaGeneratorPort {
   constructor(
     @Inject('IAiGeneratorPort') private readonly ai: IAiGeneratorPort,
+    private readonly mapper: AiSchemaResponseMapper,
   ) {}
 
   async generate(description: string): Promise<GenerateSchemaResponse> {
     const raw = await this.ai.complete(SYSTEM_PROMPT, description);
-    return this.parse(raw);
+    return this.mapper.parse(raw);
   }
 
   async regenerate(input: RegenerateSchemaInput): Promise<GenerateSchemaResponse> {
     const userPrompt = this.buildRegeneratePrompt(input);
     const raw = await this.ai.complete(SYSTEM_PROMPT, userPrompt);
-    return this.parse(raw);
+    return this.mapper.parse(raw);
   }
 
   private buildRegeneratePrompt(input: RegenerateSchemaInput): string {
@@ -78,41 +80,4 @@ Variation instruction: ${variationInstruction}
 Generate a NEW schema for the same description. Do NOT repeat the same design.`;
   }
 
-  private parse(raw: string): GenerateSchemaResponse {
-    let cleaned = raw.trim();
-
-    const codeBlock = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlock) {
-      cleaned = codeBlock[1].trim();
-    }
-
-    if (!cleaned.startsWith('{')) {
-      const start = cleaned.indexOf('{');
-      const end = cleaned.lastIndexOf('}');
-      if (start !== -1 && end !== -1) {
-        cleaned = cleaned.slice(start, end + 1);
-      }
-    }
-
-    let parsed: any;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch {
-      throw new BadRequestException(
-        'The AI returned an invalid JSON response. Please try again.',
-      );
-    }
-
-    if (
-      !parsed.schema?.tables ||
-      !Array.isArray(parsed.schema.tables) ||
-      typeof parsed.sql !== 'string'
-    ) {
-      throw new BadRequestException(
-        'AI response does not match the expected schema format.',
-      );
-    }
-
-    return parsed as GenerateSchemaResponse;
-  }
 }
