@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../shared/infrastructure/prisma/prisma.service';
 import type { Reto } from '../../domain/entities/reto.entity';
 import type { IRetoRepository } from '../../domain/repositories/reto.repository';
 
-type ChallengeRow = Prisma.ChallengeGetPayload<{}>;
+type ChallengeRow = Prisma.challengesGetPayload<{}>;
 
 @Injectable()
 export class RetoRepository implements IRetoRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(reto: Omit<Reto, 'id' | 'createdAt'>): Promise<Reto> {
-    const createdReto = await this.prismaService.challenge.create({
+  async create(reto: Omit<Reto, 'id' | 'created_at'>): Promise<Reto> {
+    const createdReto = await this.prismaService.challenges.create({
       data: {
         title: reto.title,
         description: reto.description,
@@ -24,7 +24,7 @@ export class RetoRepository implements IRetoRepository {
         created_by: reto.createdBy ?? null,
         schema_sql: reto.schemaSql ?? null,
         seed_data_sql: reto.seedDataSql ?? null,
-        expected_result: reto.expectedResult ?? null,
+        expected_result: reto.expectedResult ?? Prisma.JsonNull,
       },
     });
 
@@ -32,7 +32,7 @@ export class RetoRepository implements IRetoRepository {
   }
 
   async findById(id: string): Promise<Reto | null> {
-    const reto = await this.prismaService.challenge.findUnique({
+    const reto = await this.prismaService.challenges.findUnique({
       where: { id },
     });
 
@@ -40,7 +40,7 @@ export class RetoRepository implements IRetoRepository {
   }
 
   async findByTitle(title: string): Promise<Reto | null> {
-    const reto = await this.prismaService.challenge.findFirst({
+    const reto = await this.prismaService.challenges.findFirst({
       where: { title },
     });
 
@@ -56,18 +56,18 @@ export class RetoRepository implements IRetoRepository {
       where.difficulty = filter.difficulty;
     }
 
-    const retos = await this.prismaService.challenge.findMany({
+    const retos = await this.prismaService.challenges.findMany({
       where,
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
     });
 
     return retos.map((reto) => this.toDomain(reto));
   }
 
-  async update(id: string, updates: Partial<Omit<Reto, 'id' | 'createdAt'>>): Promise<Reto> {
-    const updatedReto = await this.prismaService.challenge.update({
+  async update(id: string, updates: Partial<Omit<Reto, 'id' | 'created_at'>>): Promise<Reto> {
+    const updatedReto = await this.prismaService.challenges.update({
       where: { id },
       data: {
         ...(updates.title !== undefined ? { title: updates.title } : {}),
@@ -79,7 +79,7 @@ export class RetoRepository implements IRetoRepository {
         ...(updates.status !== undefined ? { status: updates.status } : {}),
         ...(updates.schemaSql !== undefined ? { schema_sql: updates.schemaSql } : {}),
         ...(updates.seedDataSql !== undefined ? { seed_data_sql: updates.seedDataSql } : {}),
-        ...(updates.expectedResult !== undefined ? { expected_result: updates.expectedResult } : {}),
+        ...(updates.expectedResult !== undefined ? { expected_result: updates.expectedResult ?? Prisma.JsonNull } : {}),
       },
     });
 
@@ -87,7 +87,7 @@ export class RetoRepository implements IRetoRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prismaService.challenge.delete({
+    await this.prismaService.challenges.delete({
       where: { id },
     });
   }
@@ -106,8 +106,8 @@ export class RetoRepository implements IRetoRepository {
       createdBy: reto.created_by ?? undefined,
       schemaSql: reto.schema_sql ?? undefined,
       seedDataSql: reto.seed_data_sql ?? undefined,
-      expectedResult: reto.expected_result ?? undefined,
-      createdAt: reto.createdAt ?? undefined,
+      expectedResult: (reto.expected_result as object | null) ?? undefined,
+      createdAt: reto.created_at ?? undefined,
     };
   }
 }
