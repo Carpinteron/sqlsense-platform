@@ -6,6 +6,7 @@ import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { SchemasModule } from './schemas/schemas.module';
 import { RetoModule } from './challenges/reto.module';
+import { MockDataModule } from './mock-data/mock-data.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RetoModule } from './challenges/reto.module';
     CursosModule,
     SchemasModule,
     RetoModule,
+    MockDataModule,
   ],
 })
 export class AppModule {}

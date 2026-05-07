@@ -11,6 +11,7 @@ import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
 import { GenerateSchemaUseCase } from '../../application/use-cases/generate-schema.use-case';
 import { RegenerateSchemaUseCase } from '../../application/use-cases/regenerate-schema.use-case';
 import type { SchemaTable } from '../../domain/entities/schema.entity';
+import { SchemaParseError } from '../../domain/errors/schema-parse.error';
 
 @Controller('schemas')
 export class SchemasController {
@@ -26,7 +27,12 @@ export class SchemasController {
     if (!body?.prompt?.trim()) {
       throw new BadRequestException('prompt is required');
     }
-    return this.generateSchema.execute(body.prompt.trim());
+    try {
+      return await this.generateSchema.execute(body.prompt.trim());
+    } catch (err) {
+      if (err instanceof SchemaParseError) throw new BadRequestException(err.message);
+      throw err;
+    }
   }
 
   @Post('regenerate')
@@ -62,11 +68,16 @@ export class SchemasController {
       throw new BadRequestException('variationLevel must be between 0 and 1');
     }
 
-    return this.regenerateSchema.execute({
-      prompt: body.prompt.trim(),
-      previousSchema: body.previousSchema,
-      previousSql: body.previousSql.trim(),
-      variationLevel: body.variationLevel,
-    });
+    try {
+      return await this.regenerateSchema.execute({
+        prompt: body.prompt.trim(),
+        previousSchema: body.previousSchema,
+        previousSql: body.previousSql.trim(),
+        variationLevel: body.variationLevel,
+      });
+    } catch (err) {
+      if (err instanceof SchemaParseError) throw new BadRequestException(err.message);
+      throw err;
+    }
   }
 }
