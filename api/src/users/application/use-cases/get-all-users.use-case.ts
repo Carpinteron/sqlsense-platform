@@ -13,7 +13,7 @@ export class GetAllUsersUseCase {
     const users = await this.userRepository.findAll();
     return users.map(
       user =>
-        new UserResponseDto(user.id, user.email, user.role as any, user.createdAt),
+        new UserResponseDto(user.id, user.email, user.role, user.createdAt),
     );
   }
 }

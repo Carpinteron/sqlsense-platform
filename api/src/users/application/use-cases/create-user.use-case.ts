@@ -17,8 +17,8 @@ export class CreateUserUseCase {
 
     const hashed = await bcrypt.hash(dto.password, 10);
 
-    const created = await this.userRepository.create(dto.email, hashed, dto.role);
+    const created = await this.userRepository.create(dto.email, hashed, dto.role ?? 'STUDENT');
 
-    return new UserResponseDto(created.id, created.email, created.role as any, created.createdAt);
+    return new UserResponseDto(created.id, created.email, created.role, created.createdAt);
   }
 }

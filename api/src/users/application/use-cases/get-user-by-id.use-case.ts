@@ -16,6 +16,6 @@ export class GetUserByIdUseCase {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
 
-    return new UserResponseDto(user.id, user.email, user.role as any, user.createdAt);
+    return new UserResponseDto(user.id, user.email, user.role, user.createdAt);
   }
 }

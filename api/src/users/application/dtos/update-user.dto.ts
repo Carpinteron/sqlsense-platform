@@ -1,9 +1,12 @@
-export class UpdateUserDto {
-  email?: string;
-  password?: string;
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
-  constructor(email?: string, password?: string) {
-    this.email = email;
-    this.password = password;
-  }
+export class UpdateUserDto {
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  password?: string;
 }

@@ -27,6 +27,6 @@ export class UpdateUserUseCase {
 
     if (!updated) throw new NotFoundException('Usuario no encontrado');
 
-    return new UserResponseDto(updated.id, updated.email, updated.role as any, updated.createdAt);
+    return new UserResponseDto(updated.id, updated.email, updated.role, updated.createdAt);
   }
 }

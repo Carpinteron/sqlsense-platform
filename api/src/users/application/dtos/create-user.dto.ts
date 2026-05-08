@@ -1,11 +1,15 @@
-export class CreateUserDto {
-  email: string;
-  password: string;
-  role?: 'ADMIN' | 'PROFESSOR' | 'STUDENT';
+import { IsEmail, IsIn, IsOptional, IsString, MinLength } from 'class-validator';
+import type { UserRole } from '../../domain/entities/user.entity';
 
-  constructor(email: string, password: string, role?: 'ADMIN' | 'PROFESSOR' | 'STUDENT') {
-    this.email = email;
-    this.password = password;
-    this.role = role || 'STUDENT';
-  }
+export class CreateUserDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(6)
+  password: string;
+
+  @IsOptional()
+  @IsIn(['ADMIN', 'PROFESSOR', 'STUDENT'])
+  role?: UserRole;
 }
