@@ -39,6 +39,10 @@ export class SchemaTableDto {
   @ApiProperty({
     description: 'Columnas de la tabla',
     type: [SchemaColumnDto],
+    example: [
+      { name: 'id', type: 'int', primary: true, foreign: null },
+      { name: 'name', type: 'varchar', primary: false, foreign: null },
+    ],
   })
   @IsArray()
   @ValidateNested({ each: true })
@@ -50,6 +54,15 @@ export class PreviousSchemaDto {
   @ApiProperty({
     description: 'Tablas del schema anterior',
     type: [SchemaTableDto],
+    example: [
+      {
+        name: 'users',
+        columns: [
+          { name: 'id', type: 'int', primary: true, foreign: null },
+          { name: 'email', type: 'varchar', primary: false, foreign: null },
+        ],
+      },
+    ],
   })
   @IsArray()
   @ValidateNested({ each: true })
