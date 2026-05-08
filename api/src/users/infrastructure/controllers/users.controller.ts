@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  Patch,
   Param,
   ParseIntPipe,
   Post,
@@ -15,7 +16,9 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
 import { CreateUserDto } from '../../application/dtos/create-user.dto';
+import { ChangeUserRoleDto } from '../../application/dtos/change-user-role.dto';
 import { UpdateUserDto } from '../../application/dtos/update-user.dto';
+import { ChangeUserRoleUseCase } from '../../application/use-cases/change-user-role.use-case';
 import { CreateUserUseCase } from '../../application/use-cases/create-user.use-case';
 import { DeleteUserUseCase } from '../../application/use-cases/delete-user.use-case';
 import { GetAllUsersUseCase } from '../../application/use-cases/get-all-users.use-case';
@@ -31,6 +34,7 @@ export class UsersController {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
+    private readonly changeUserRoleUseCase: ChangeUserRoleUseCase,
   ) {}
 
   private ensureSelfOrAdmin(requestUser: { id: number; role: string }, targetId: number): void {
@@ -74,5 +78,15 @@ export class UsersController {
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     await this.deleteUserUseCase.execute(id);
     return { message: 'Usuario eliminado exitosamente' };
+  }
+
+  @Patch(':id/role')
+  @SetMetadata('roles', ['ADMIN'])
+  async changeUserRole(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ChangeUserRoleDto,
+    @Request() req,
+  ) {
+    return this.changeUserRoleUseCase.execute(req.user.id, id, dto.role);
   }
 }

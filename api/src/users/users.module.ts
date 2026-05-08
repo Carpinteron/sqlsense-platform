@@ -5,6 +5,7 @@ import { UpdateUserUseCase } from './application/use-cases/update-user.use-case'
 import { GetAllUsersUseCase } from './application/use-cases/get-all-users.use-case';
 import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case';
 import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case';
+import { ChangeUserRoleUseCase } from './application/use-cases/change-user-role.use-case';
 import { UserRepository } from '../auth/infrastructure/persistence/user.repository';
 import { UsersController } from './infrastructure/controllers/users.controller';
 
@@ -17,6 +18,7 @@ import { UsersController } from './infrastructure/controllers/users.controller';
     GetAllUsersUseCase,
     GetUserByIdUseCase,
     DeleteUserUseCase,
+    ChangeUserRoleUseCase,
     // Bind the repository token to the existing implementation
     {
       provide: 'IUserManagementRepository',
@@ -29,6 +31,7 @@ import { UsersController } from './infrastructure/controllers/users.controller';
     GetAllUsersUseCase,
     GetUserByIdUseCase,
     DeleteUserUseCase,
+    ChangeUserRoleUseCase,
   ],
 })
 export class UsersModule {}
