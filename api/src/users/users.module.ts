@@ -6,10 +6,11 @@ import { GetAllUsersUseCase } from './application/use-cases/get-all-users.use-ca
 import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case';
 import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case';
 import { UserRepository } from '../auth/infrastructure/persistence/user.repository';
+import { UsersController } from './infrastructure/controllers/users.controller';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [],
+  controllers: [UsersController],
   providers: [
     CreateUserUseCase,
     UpdateUserUseCase,
