@@ -11,8 +11,20 @@ import {
   Request,
   BadRequestException,
   NotFoundException,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
 import { CrearRetoUseCase } from '../../aplication/use-cases/crear-reto.use-case';
 import { GetRetosUseCase } from '../../aplication/use-cases/get-retos.use-case';
@@ -21,7 +33,13 @@ import { GetRetoByTitleUseCase } from '../../aplication/use-cases/get-reto-by-ti
 import { UpdateRetoUseCase } from '../../aplication/use-cases/update-reto.use-case';
 import { DeleteRetoUseCase } from '../../aplication/use-cases/delete-reto.use-case';
 import { Reto } from '../../domain/entities/reto.entity';
+import { CreateRetoDto } from '../../aplication/dtos/create-reto.dto';
+import { UpdateRetoDto } from '../../aplication/dtos/update-reto.dto';
+import { RetoResponseDto } from '../../aplication/dtos/reto-response.dto';
+import { DeleteRetoResponseDto } from '../../aplication/dtos/delete-reto-response.dto';
 
+@ApiTags('Retos')
+@ApiBearerAuth('JWT')
 @Controller('retos')
 export class RetosController {
   constructor(
@@ -37,7 +55,15 @@ export class RetosController {
   @Get()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN', 'STUDENT'])
-  async getAllRetos(@Request() req) {
+  @ApiOperation({
+    summary: 'Listar retos',
+    description:
+      'Roles: **PROFESSOR**, **ADMIN**, **STUDENT**. Si el usuario es STUDENT, el backend filtra automáticamente a `status=published`.',
+  })
+  @ApiResponse({ status: 200, type: [RetoResponseDto] })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  async getAllRetos(@Request() req: { user: { role: string } }) {
     try {
       const filter = req.user.role === 'STUDENT'
         ? { status: 'published' as const }
@@ -54,11 +80,17 @@ export class RetosController {
   @Get('title/:title')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
+  @ApiOperation({ summary: 'Obtener reto por título' })
+  @ApiParam({ name: 'title', example: 'SELECT_BASICO_001' })
+  @ApiResponse({ status: 200, type: RetoResponseDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
   async getRetoByTitle(@Param('title') title: string) {
     try {
       return await this.getRetoByTitleUseCase.execute(title);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('no encontrado')) {
+      if (error instanceof Error && (error.message.includes('no encontrado') || error.message.includes('not found'))) {
         throw new NotFoundException(error.message);
       }
       throw new BadRequestException(
@@ -71,11 +103,17 @@ export class RetosController {
   @Get(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN', 'STUDENT'])
+  @ApiOperation({ summary: 'Obtener reto por ID (UUID)' })
+  @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiResponse({ status: 200, type: RetoResponseDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
   async getReto(@Param('id') id: string) {
     try {
       return await this.getRetoByIdUseCase.execute(id);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('no encontrado')) {
+      if (error instanceof Error && (error.message.includes('no encontrado') || error.message.includes('not found'))) {
         throw new NotFoundException(error.message);
       }
       throw new BadRequestException(
@@ -86,23 +124,52 @@ export class RetosController {
 
   // POST crear reto - solo profesores
   @Post()
+  @HttpCode(201)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
-  async crearReto(@Body() body: any, @Request() req) {
+  @ApiOperation({ summary: 'Crear reto' })
+  @ApiBody({
+    type: CreateRetoDto,
+    examples: {
+      ejemplo: {
+        summary: 'Reto de ejemplo',
+        value: {
+          title: 'SELECT_BASICO_001',
+          description: 'Devuelve todos los usuarios ordenados por fecha de creación.',
+          difficulty: 'Easy',
+          tags: ['select', 'order-by'],
+          databaseEngine: 'PostgreSQL',
+          timeLimit: 60,
+          status: 'draft',
+          courseId: '550e8400-e29b-41d4-a716-446655440000',
+          schemaSql: 'CREATE TABLE users(id INT PRIMARY KEY, created_at TIMESTAMP);',
+          seedDataSql: 'INSERT INTO users(id, created_at) VALUES (1, NOW());',
+          expectedResult: { rows: [{ id: 1 }] },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, type: RetoResponseDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  async crearReto(
+    @Body() dto: CreateRetoDto,
+    @Request() req: { user: { id: number } },
+  ) {
     try {
       const retoData: Omit<Reto, 'id' | 'createdAt'> = {
-        title: body.title,
-        description: body.description,
-        difficulty: body.difficulty,
-        tags: body.tags,
-        databaseEngine: body.databaseEngine,
-        timeLimit: body.timeLimit,
-        status: body.status ?? 'draft',
-        courseId: body.courseId,
+        title: dto.title,
+        description: dto.description,
+        difficulty: dto.difficulty,
+        tags: dto.tags,
+        databaseEngine: dto.databaseEngine,
+        timeLimit: dto.timeLimit,
+        status: dto.status ?? 'draft',
+        courseId: dto.courseId,
         createdBy: req.user.id,
-        schemaSql: body.schemaSql,
-        seedDataSql: body.seedDataSql,
-        expectedResult: body.expectedResult,
+        schemaSql: dto.schemaSql,
+        seedDataSql: dto.seedDataSql,
+        expectedResult: dto.expectedResult,
       };
       return await this.crearRetoUseCase.execute(retoData);
     } catch (error) {
@@ -116,10 +183,17 @@ export class RetosController {
   @Put(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
+  @ApiOperation({ summary: 'Actualizar reto' })
+  @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiBody({ type: UpdateRetoDto })
+  @ApiResponse({ status: 200, type: RetoResponseDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse({ description: 'Sin permiso (no creador ni ADMIN)' })
+  @ApiNotFoundResponse()
   async updateReto(
     @Param('id') id: string,
-    @Body() updates: any,
-    @Request() req,
+    @Body() updates: UpdateRetoDto,
+    @Request() req: { user: { id: number; role: string } },
   ) {
     try {
       const reto = await this.getRetoByIdUseCase.execute(id);
@@ -134,6 +208,7 @@ export class RetosController {
       if (updates.description !== undefined) safeUpdates.description = updates.description;
       if (updates.difficulty !== undefined) safeUpdates.difficulty = updates.difficulty;
       if (updates.tags !== undefined) safeUpdates.tags = updates.tags;
+      if (updates.databaseEngine !== undefined) safeUpdates.databaseEngine = updates.databaseEngine;
       if (updates.timeLimit !== undefined) safeUpdates.timeLimit = updates.timeLimit;
       if (updates.status !== undefined) safeUpdates.status = updates.status;
       if (updates.schemaSql !== undefined) safeUpdates.schemaSql = updates.schemaSql;
@@ -156,7 +231,16 @@ export class RetosController {
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
-  async deleteReto(@Param('id') id: string, @Request() req) {
+  @ApiOperation({ summary: 'Eliminar reto' })
+  @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiResponse({ status: 200, type: DeleteRetoResponseDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  async deleteReto(
+    @Param('id') id: string,
+    @Request() req: { user: { id: number; role: string } },
+  ) {
     try {
       const reto = await this.getRetoByIdUseCase.execute(id);
       if (reto.createdBy !== req.user.id && req.user.role !== 'ADMIN') {
@@ -168,7 +252,7 @@ export class RetosController {
       await this.deleteRetoUseCase.execute(id);
       return { message: 'Reto eliminado exitosamente' };
     } catch (error) {
-      if (error instanceof Error && error.message.includes('no encontrado')) {
+      if (error instanceof Error && (error.message.includes('no encontrado') || error.message.includes('not found'))) {
         throw new NotFoundException(error.message);
       }
       throw new BadRequestException(
