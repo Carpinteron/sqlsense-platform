@@ -7,13 +7,19 @@ import {
   SetMetadata,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
 import { GenerateSchemaUseCase } from '../../application/use-cases/generate-schema.use-case';
 import { RegenerateSchemaUseCase } from '../../application/use-cases/regenerate-schema.use-case';
-import type { SchemaTable } from '../../domain/entities/schema.entity';
+import { GenerateSchemaDto } from '../../application/dtos/generate-schema.dto';
+import { RegenerateSchemaDto } from '../../application/dtos/regenerate-schema.dto';
 import { SchemaParseError } from '../../domain/errors/schema-parse.error';
 
 @Controller('schemas')
+@ApiTags('Schemas')
+@ApiBearerAuth('JWT')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
 export class SchemasController {
   constructor(
     private readonly generateSchema: GenerateSchemaUseCase,
@@ -21,9 +27,38 @@ export class SchemasController {
   ) {}
 
   @Post('generate')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
-  async generate(@Body() body: { prompt: string }) {
+  @ApiOperation({
+    summary: 'Generar un nuevo schema',
+    description: 'Genera una definición de schema SQL a partir de una descripción natural usando IA. Solo PROFESSOR y ADMIN.',
+  })
+  @ApiBody({ type: GenerateSchemaDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Schema generado correctamente con SQL',
+    schema: {
+      example: {
+        schema: {
+          tables: [
+            {
+              name: 'employees',
+              columns: [
+                { name: 'id', type: 'int', primary: true, foreign: null },
+                { name: 'name', type: 'varchar', primary: false, foreign: null },
+              ],
+            },
+          ],
+        },
+        sql: 'CREATE TABLE employees (id INT PRIMARY KEY, name VARCHAR(255));',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Prompt vacío, inválido o error en la generación del schema',
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 403, description: 'Rol insuficiente' })
+  async generate(@Body() body: GenerateSchemaDto) {
     if (!body?.prompt?.trim()) {
       throw new BadRequestException('prompt is required');
     }
@@ -36,17 +71,38 @@ export class SchemasController {
   }
 
   @Post('regenerate')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
-  async regenerate(
-    @Body()
-    body: {
-      prompt: string;
-      previousSchema: { tables: SchemaTable[] };
-      previousSql: string;
-      variationLevel?: number;
+  @ApiOperation({
+    summary: 'Regenerar un schema existente',
+    description: 'Regenera un schema a partir de uno anterior con variabilidad controlada. Solo PROFESSOR y ADMIN.',
+  })
+  @ApiBody({ type: RegenerateSchemaDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Schema regenerado correctamente',
+    schema: {
+      example: {
+        schema: {
+          tables: [
+            {
+              name: 'employees',
+              columns: [
+                { name: 'id', type: 'int', primary: true, foreign: null },
+                { name: 'name', type: 'varchar', primary: false, foreign: null },
+              ],
+            },
+          ],
+        },
+        sql: 'CREATE TABLE employees (id INT PRIMARY KEY, name VARCHAR(255));',
+      },
     },
-  ) {
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validación fallida (prompt, previousSchema, previousSql, variationLevel inválidos)',
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 403, description: 'Rol insuficiente' })
+  async regenerate(@Body() body: RegenerateSchemaDto) {
     if (!body?.prompt?.trim()) {
       throw new BadRequestException('prompt is required');
     }
