@@ -31,22 +31,6 @@ services:
       - "3001:3000"
     env_file:
       - ./api/.env
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_REFRESH_TTL=604800
-
-      - DATABASE_URL=postgresql://appuser:supersecret_dev@postgres/appdb
-
-      - JWT_SECRET=9e2d9502a1e30e2c4ddb8dcc3f9a9018
-      - JWT_ACCESS_EXPIRATION=1h
-      - JWT_REFRESH_EXPIRATION=7d
-
-      - AI_ENDPOINT=https://chat.homelab.builders/v1/chat/completions
-      - AI_MODEL=google/gemma-4-e4b
-      - AI_TEMPERATURE=0
-      - AI_MAX_TOKENS=65536
-      - AI_TIMEOUT=60000
     depends_on:
       redis:
         condition: service_started
@@ -58,10 +42,8 @@ services:
   worker:
     build: ./worker
     container_name: sql_sense_worker
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_REFRESH_TTL=604800
+    env_file:
+      - ./api/.env
     depends_on:
       - postgres
       - redis
