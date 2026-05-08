@@ -15,14 +15,14 @@ export class UserRepository implements IUserAuthRepository, IUserManagementRepos
   /**
    * Auth method: Validate login credentials
    */
-  async validateCredentials(email: string, pass: string): Promise<AuthPayload | null> {
+  async validateCredentials(email: string, password: string): Promise<AuthPayload | null> {
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
 
     if (!user) return null;
 
-    const isMatch = await bcrypt.compare(pass, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     
     if (!isMatch) return null;
 

@@ -3,5 +3,5 @@ import type { UserRole } from '../../domain/entities/user.entity';
 
 export class ChangeUserRoleDto {
   @IsIn(['ADMIN', 'PROFESSOR', 'STUDENT'])
-  role: UserRole;
+  role!: UserRole;
 }

@@ -3,11 +3,11 @@ import type { UserRole } from '../../domain/entities/user.entity';
 
 export class CreateUserDto {
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(6)
-  password: string;
+  password!: string;
 
   @IsOptional()
   @IsIn(['ADMIN', 'PROFESSOR', 'STUDENT'])
