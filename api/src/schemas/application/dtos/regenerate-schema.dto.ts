@@ -24,6 +24,17 @@ export class RegenerateSchemaDto {
   @ApiProperty({
     description: 'Schema anterior a partir del cual regenerar',
     type: PreviousSchemaDto,
+    example: {
+      tables: [
+        {
+          name: 'employees',
+          columns: [
+            { name: 'id', type: 'int', primary: true, foreign: null },
+            { name: 'name', type: 'varchar', primary: false, foreign: null },
+          ],
+        },
+      ],
+    },
   })
   @ValidateNested()
   @Type(() => PreviousSchemaDto)
