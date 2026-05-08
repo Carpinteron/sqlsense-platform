@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsBoolean, IsOptional, IsArray, ValidateNested, Type } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsOptional,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class SchemaColumnDto {
   @ApiProperty({ example: 'id', description: 'Nombre de la columna' })

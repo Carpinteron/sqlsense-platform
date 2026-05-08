@@ -7,8 +7,8 @@ import {
   Min,
   Max,
   ValidateNested,
-  Type,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { PreviousSchemaDto } from './schema-table.dto';
 
 export class RegenerateSchemaDto {

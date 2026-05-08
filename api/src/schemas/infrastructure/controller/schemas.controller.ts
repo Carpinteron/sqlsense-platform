@@ -125,9 +125,19 @@ export class SchemasController {
     }
 
     try {
+      const previousSchema = {
+        tables: body.previousSchema.tables.map((table) => ({
+          ...table,
+          columns: table.columns.map((column) => ({
+            ...column,
+            foreign: column.foreign ?? null,
+          })),
+        })),
+      };
+
       return await this.regenerateSchema.execute({
         prompt: body.prompt.trim(),
-        previousSchema: body.previousSchema,
+        previousSchema,
         previousSql: body.previousSql.trim(),
         variationLevel: body.variationLevel,
       });

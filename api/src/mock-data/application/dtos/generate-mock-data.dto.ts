@@ -5,9 +5,9 @@ import {
   Min,
   IsInt,
   ValidateNested,
-  Type,
   IsObject,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { FieldSpecDto } from './field-spec.dto';
 
 export class GenerateMockDataDto {
@@ -51,6 +51,7 @@ export class GenerateMockDataDto {
     },
     description: 'Especificación de campos y sus tipos',
     type: 'object',
+    additionalProperties: true,
   })
   @IsObject()
   @ValidateNested({ each: true })
