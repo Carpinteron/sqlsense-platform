@@ -47,35 +47,45 @@ Eso levanta:
 - API en `localhost:3001`
 - Worker
 
-## Cómo probar la API
+## Documentación API con Swagger UI
 
-Base URL local:
+La API está documentada automáticamente con **Swagger UI**, una interfaz interactiva para probar endpoints sin necesidad de curl o Postman.
 
-```text
-http://localhost:3001
-```
+### Acceder a la documentación
 
-Endpoints principales:
+Una vez que la API esté corriendo (con Docker o `npm run start:dev`):
 
-- `POST /auth/login`
-- `POST /auth/refresh`
-- `POST /auth/logout`
-- `GET /auth/health`
-- `GET /auth/profile`
-- `GET /cursos`
-- `GET /cursos/:id`
-- `POST /cursos`
-- `PUT /cursos/:id`
-- `DELETE /cursos/:id`
-- `GET /retos`
-- `GET /retos/:id`
-- `GET /retos/title/:title`
-- `POST /retos`
-- `PUT /retos/:id`
-- `DELETE /retos/:id`
-- `POST /schemas/generate`
-- `POST /schemas/regenerate`
-- `POST /mock-data/generate`
+- **Docker**: `http://localhost:3001/api`
+- **npm run start:dev**: `http://localhost:3000/api`
+
+### Flujo de autorización paso a paso
+
+1. Abre Swagger UI en la URL anterior
+2. Busca `POST /auth/login` y haz clic en "Try it out"
+3. Completa el body con:
+   ```json
+   {
+     "email": "admin@sqlsense.com",
+     "password": "123456"
+   }
+   ```
+4. Haz clic en "Execute"
+5. Copia el `access_token` de la respuesta
+6. Haz clic en el botón **"Authorize"** (arriba a la derecha, ícono de candado)
+7. En el campo **"Value"**, pega: `Bearer <access_token>` (con "Bearer " al inicio)
+8. Haz clic en "Authorize" y luego "Close"
+9. Ahora todos los endpoints protegidos estarán autorizados — ¡pruébalos!
+
+### Endpoints principales
+
+- **Auth**: Login, refresh, logout, profile
+- **Users**: CRUD de usuarios, cambiar roles (ADMIN)
+- **Cursos**: CRUD de cursos (PROFESSOR/ADMIN)
+- **Retos**: CRUD de retos SQL
+- **Schemas**: Generar y regenerar schemas con IA
+- **Mock Data**: Generar datos fake para tablas con IA
+
+Para más detalles, ejemplos curl y cómo configurar variables de entorno, ver [api/README.md](api/README.md).
 
 ## Cómo ver la base de datos
 

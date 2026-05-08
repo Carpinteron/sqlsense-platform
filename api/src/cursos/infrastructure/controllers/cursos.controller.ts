@@ -11,8 +11,20 @@ import {
   Request,
   BadRequestException,
   NotFoundException,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
 import { CrearCursoUseCase } from '../../aplication/use-cases/crear-curso.use-case';
 import { GetCursosUseCase } from '../../aplication/use-cases/get-cursos.use-case';
@@ -20,7 +32,13 @@ import { GetCursoUseCase } from '../../aplication/use-cases/get-curso.use-case';
 import { UpdateCursoUseCase } from '../../aplication/use-cases/update-curso.use-case';
 import { DeleteCursoUseCase } from '../../aplication/use-cases/delete-curso.use-case';
 import { Curso } from '../../domain/entities/curso.entity';
+import { CreateCursoDto } from '../../aplication/dtos/create-curso.dto';
+import { UpdateCursoDto } from '../../aplication/dtos/update-curso.dto';
+import { CursoResponseDto } from '../../aplication/dtos/curso-response.dto';
+import { DeleteCursoResponseDto } from '../../aplication/dtos/delete-curso-response.dto';
 
+@ApiTags('Cursos')
+@ApiBearerAuth('JWT')
 @Controller('cursos')
 export class CursosController {
   constructor(
@@ -31,11 +49,17 @@ export class CursosController {
     private readonly deleteCursoUseCase: DeleteCursoUseCase,
   ) {}
 
-  // GET todos los cursos - solo profesores
   @Get()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
-  async getAllCursos(@Request() req) {
+  @ApiOperation({
+    summary: 'Listar cursos del profesor',
+    description: 'Lista cursos filtrados por el profesor autenticado. Roles: **PROFESSOR**, **ADMIN**.',
+  })
+  @ApiResponse({ status: 200, description: 'Lista de cursos', type: [CursoResponseDto] })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse({ description: 'Rol no permitido' })
+  async getAllCursos(@Request() req: { user: { id: number } }) {
     try {
       return await this.getCursosUseCase.execute({
         professorId: req.user.id,
@@ -47,10 +71,15 @@ export class CursosController {
     }
   }
 
-  // GET un curso específico - solo profesores
   @Get(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
+  @ApiOperation({ summary: 'Obtener curso por ID (UUID)' })
+  @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiResponse({ status: 200, type: CursoResponseDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
   async getCurso(@Param('id') id: string) {
     try {
       return await this.getCursoUseCase.execute(id);
@@ -64,18 +93,42 @@ export class CursosController {
     }
   }
 
-  // POST crear curso - solo profesores
   @Post()
+  @HttpCode(201)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
-  async crearCurso(@Body() body: any, @Request() req) {
+  @ApiOperation({
+    summary: 'Crear curso',
+    description: 'Asigna automáticamente `professorId` al usuario autenticado.',
+  })
+  @ApiBody({
+    type: CreateCursoDto,
+    examples: {
+      ejemploCurso: {
+        summary: 'Curso de ejemplo',
+        value: {
+          name: 'Arquitectura de Software',
+          code: 'ARQ-401',
+          period: '2026-1',
+          groupNumber: '2',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Curso creado', type: CursoResponseDto })
+  @ApiResponse({ status: 400, description: 'Código duplicado o error de validación' })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  async crearCurso(
+    @Body() dto: CreateCursoDto,
+    @Request() req: { user: { id: number } },
+  ) {
     try {
-      // Asignar el profesor actual al curso
       const cursoData: Omit<Curso, 'id' | 'createdAt'> = {
-        name: body.name,
-        code: body.code,
-        period: body.period,
-        groupNumber: body.groupNumber,
+        name: dto.name,
+        code: dto.code,
+        period: dto.period,
+        groupNumber: dto.groupNumber,
         professorId: req.user.id,
       };
       return await this.crearCursoUseCase.execute(cursoData);
@@ -86,28 +139,41 @@ export class CursosController {
     }
   }
 
-  // PUT actualizar curso - solo profesores (y solo el suyo)
   @Put(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
+  @ApiOperation({
+    summary: 'Actualizar curso',
+    description: 'Solo el profesor dueño o **ADMIN**. No se puede cambiar `professorId` desde aquí.',
+  })
+  @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiBody({
+    type: UpdateCursoDto,
+    examples: {
+      parcial: {
+        summary: 'Actualización parcial',
+        value: {
+          name: 'Arquitectura de Empresarial',
+          groupNumber: '5',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, type: CursoResponseDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse({ description: 'Sin permiso sobre el curso' })
+  @ApiNotFoundResponse()
   async updateCurso(
     @Param('id') id: string,
-    @Body() updates: any,
-    @Request() req,
+    @Body() updates: UpdateCursoDto,
+    @Request() req: { user: { id: number; role: string } },
   ) {
     try {
-      // Validar que el profesor sea dueño del curso
       const curso = await this.getCursoUseCase.execute(id);
-      if (
-        curso.professorId !== req.user.id &&
-        req.user.role !== 'ADMIN'
-      ) {
-        throw new BadRequestException(
-          'No tienes permiso para actualizar este curso',
-        );
+      if (curso.professorId !== req.user.id && req.user.role !== 'ADMIN') {
+        throw new BadRequestException('No tienes permiso para actualizar este curso');
       }
 
-      // No permitir cambiar el profesor - crear objeto seguro con tipos correctos
       const safeUpdates: Partial<Omit<Curso, 'id' | 'createdAt'>> = {};
       if (updates.name !== undefined) safeUpdates.name = updates.name;
       if (updates.code !== undefined) safeUpdates.code = updates.code;
@@ -125,21 +191,20 @@ export class CursosController {
     }
   }
 
-  // DELETE eliminar curso - solo profesores (y solo el suyo)
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
-  async deleteCurso(@Param('id') id: string, @Request() req) {
+  @ApiOperation({ summary: 'Eliminar curso', description: 'Solo el dueño o **ADMIN**.' })
+  @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiResponse({ status: 200, type: DeleteCursoResponseDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  async deleteCurso(@Param('id') id: string, @Request() req: { user: { id: number; role: string } }) {
     try {
-      // Validar que el profesor sea dueño del curso
       const curso = await this.getCursoUseCase.execute(id);
-      if (
-        curso.professorId !== req.user.id &&
-        req.user.role !== 'ADMIN'
-      ) {
-        throw new BadRequestException(
-          'No tienes permiso para eliminar este curso',
-        );
+      if (curso.professorId !== req.user.id && req.user.role !== 'ADMIN') {
+        throw new BadRequestException('No tienes permiso para eliminar este curso');
       }
 
       await this.deleteCursoUseCase.execute(id);

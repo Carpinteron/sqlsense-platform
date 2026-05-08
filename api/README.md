@@ -1,98 +1,228 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# SQLSense Platform API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend NestJS para SQLSense Platform con autenticación, gestión de cursos/retos, generación de schemas y mock data con IA.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Arquitectura
 
-## Description
+Estructura por módulos siguiendo **Clean Architecture**:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
+```
+src/
+├── auth/                 # Autenticación, login, refresh, logout, profile
+├── users/                # Gestión de usuarios y roles (ADMIN)
+├── cursos/               # CRUD de cursos (PROFESSOR/ADMIN)
+├── challenges/           # CRUD de retos SQL
+├── schemas/              # Generación de schemas con IA
+├── mock-data/            # Generación de mock data con IA
+├── ai/                   # Integración con LLM
+└── shared/               # Infraestructura compartida (Prisma, Redis)
 ```
 
-## Compile and run the project
+Cada módulo sigue:
+- `domain/` — Entidades, interfaces y errores de negocio
+- `application/` — DTOs, use-cases, validaciones
+- `infrastructure/` — Controllers, persistencia, mappers
+
+## Instalación
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+## Variables de entorno
+
+Copia `api/.env.example` a `api/.env` y completa:
+
+```env
+# Puerto
+PORT=3000
+
+# Base de datos
+DATABASE_URL=postgresql://appuser:supersecret_dev@localhost:5432/appdb
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# Integración con IA (LM-Studio o similar)
+AI_API_KEY=tu-api-key-aqui
+AI_ENDPOINT=http://localhost:1234/v1/chat/completions
+AI_MODEL=nombre-del-modelo
+```
+
+## Desarrollo local
 
 ```bash
-# unit tests
-$ npm run test
+# Instalar dependencias
+npm install
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Correr en modo watch
+npm run start:dev
 ```
 
-## Deployment
+API disponible en: `http://localhost:3000`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Con Docker (recomendado)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Desde la **raíz del repo**:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose up --build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+API disponible en: `http://localhost:3001`
 
-## Resources
+Servicios levantados:
+- PostgreSQL en `localhost:5432`
+- Redis en `localhost:6379`
+- API en `localhost:3001`
+- Worker en background
 
-Check out a few resources that may come in handy when working with NestJS:
+## Documentación interactiva (Swagger UI)
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Una vez que la API esté corriendo, accede a:
 
-## Support
+- **Docker**: `http://localhost:3001/api`
+- **npm run start:dev**: `http://localhost:3000/api`
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Flujo de autorización en Swagger UI
 
-## Stay in touch
+1. Abre Swagger UI en la URL anterior
+2. Ejecuta `POST /auth/login` con credenciales de prueba:
+   ```json
+   {
+     "email": "admin@sqlsense.com",
+     "password": "123456"
+   }
+   ```
+3. Copia el `access_token` de la respuesta
+4. Haz clic en **"Authorize"** (arriba a la derecha, ícono de candado)
+5. En el campo **"Value"**, pega: `Bearer <access_token>`
+6. Haz clic en **"Authorize"** y **"Close"**
+7. Ahora todos los endpoints protegidos estarán autorizados
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Ejemplos con curl
 
-## License
+### Login
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```bash
+curl -X POST http://localhost:3001/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@sqlsense.com",
+    "password": "123456"
+  }'
+```
+
+Respuesta:
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "..."
+}
+```
+
+### Acceder a endpoint protegido (ejemplo: perfil)
+
+```bash
+curl -X GET http://localhost:3001/auth/profile \
+  -H "Authorization: Bearer <access_token>"
+```
+
+### Generar schema con IA
+
+```bash
+curl -X POST http://localhost:3001/schemas/generate \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "halla la persona menor en la base de datos de una empresa"
+  }'
+```
+
+### Generar mock data
+
+```bash
+curl -X POST http://localhost:3001/mock-data/generate \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "table": "orders",
+    "rows": 100,
+    "fields": {
+      "customer_id": {
+        "type": "foreign_key",
+        "references": "customers.id"
+      },
+      "total": {
+        "type": "decimal",
+        "min": 10000,
+        "max": 5000000
+      },
+      "created_at": {
+        "type": "date",
+        "from": "2026-01-01",
+        "to": "2026-12-31"
+      },
+      "status": {
+        "type": "enum",
+        "values": ["PENDING", "PAID", "CANCELLED"]
+      }
+    }
+  }'
+```
+
+## Base de datos
+
+### Con Prisma Studio
+
+```bash
+npm run prisma:studio
+```
+
+Abre automáticamente la UI en `http://localhost:5555`.
+
+### Con psql (Docker)
+
+```bash
+docker compose exec postgres psql -U appuser -d appdb
+```
+
+### Con DBeaver o pgAdmin
+
+- **Host**: `localhost`
+- **Puerto**: `5432`
+- **Usuario**: `appuser`
+- **Contraseña**: `supersecret_dev`
+- **Base de datos**: `appdb`
+
+## Testing
+
+```bash
+# Tests unitarios
+npm run test
+
+# Tests E2E
+npm run test:e2e
+
+# Cobertura
+npm run test:cov
+```
+
+## Scripts disponibles
+
+```bash
+npm run start          # Producción
+npm run start:dev      # Desarrollo con watch
+npm run build          # Compilar a dist/
+npm run prisma:studio  # Abrir Prisma Studio
+npm run prisma:migrate # Ejecutar migraciones pendientes
+npm run lint           # Lint con ESLint
+npm run format         # Formato con Prettier
+```
+
+## Notas
+
+- El API key de IA va en `AI_API_KEY=` dentro de `.env`, nunca en el código
+- Todos los endpoints requieren autenticación Bearer JWT excepto `/auth/login`
+- Los datos de prueba (usuario admin) se crean automáticamente en `postgres/init.sql`
+- Roles soportados: `STUDENT`, `PROFESSOR`, `ADMIN`
