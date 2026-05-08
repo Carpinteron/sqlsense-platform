@@ -7,6 +7,7 @@ import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { SchemasModule } from './schemas/schemas.module';
 import { RetoModule } from './challenges/reto.module';
 import { MockDataModule } from './mock-data/mock-data.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MockDataModule } from './mock-data/mock-data.module';
     SchemasModule,
     RetoModule,
     MockDataModule,
+    UsersModule,
   ],
 })
 export class AppModule {}

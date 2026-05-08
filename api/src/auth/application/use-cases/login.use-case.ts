@@ -10,8 +10,8 @@ export class LoginUseCase {
     private readonly generateTokensUseCase: GenerateTokensUseCase,
   ) {}
 
-  async execute(email: string, pass: string) {
-    const user = await this.userAuthRepository.validateCredentials(email, pass);
+  async execute(email: string, password: string) {
+    const user = await this.userAuthRepository.validateCredentials(email, password);
 
     if (!user) {
       throw new UnauthorizedException('Credenciales incorrectas');

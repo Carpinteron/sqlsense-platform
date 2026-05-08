@@ -22,8 +22,8 @@ export class AuthController {
   }
   
   @Post('login')
-  async login(@Body() body: { email: string; pass: string }) {
-  return this.loginUseCase.execute(body.email, body.pass);
+  async login(@Body() body: { email: string; password: string }) {
+  return this.loginUseCase.execute(body.email, body.password);
   }
 
   @Post('logout')
