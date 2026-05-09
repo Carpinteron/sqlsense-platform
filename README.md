@@ -26,11 +26,7 @@ La solución está dividida en dos aplicaciones NestJS:
 
 La configuración local de la API vive en `api/.env` y el ejemplo compartible está en `api/.env.example`.
 
-Importante:
 
-- `.env` no debe versionarse.
-- `.env.example` sí debe estar en Git para que el equipo tenga la plantilla.
-- El `.gitignore` raíz ya ignora `.env` y permite `.env.example`.
 
 ## Cómo correr todo
 
@@ -112,8 +108,3 @@ El script de inicialización crea un administrador de ejemplo en `postgres/init.
 - Email: `admin@sqlsense.com`
 - Password: `123456`
 
-## Notas para la primera entrega
-
-- El token de LLM no está en el código: debe ir en `api/.env` como `AI_API_KEY`.
-- La base de datos y Redis ya están pensados para correr con Docker.
-- Si luego quieres trabajar sin Docker, puedes levantar solo la API y apuntarla a una Postgres local.
