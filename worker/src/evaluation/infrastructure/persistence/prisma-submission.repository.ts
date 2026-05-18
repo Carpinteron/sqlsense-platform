@@ -46,37 +46,19 @@ export class PrismaSubmissionRepository implements ISubmissionRepository {
   }
 
 async update(evaluation: Evaluation): Promise<void> {
-    const currentDbRow = await this._prisma.submissions.findUnique({
-      where: { id: evaluation.id },
-    });
-
-    if (!currentDbRow) {
+    try {
+      await this._prisma.submissions.update({
+        where: { id: evaluation.id },
+        data: {
+          status: evaluation.status,
+          execution_time_ms: evaluation.executionTimeMs,
+          score: evaluation.score,
+          result: evaluation.resultJson,
+          feedback: evaluation.feedback,
+        },
+      });
+    } catch (error) {
       throw new NotFoundException(`La evaluación con ID ${evaluation.id} no existe.`);
     }
-
-    await this._prisma.submissions.update({
-      where: { id: evaluation.id },
-      data: {
-        status: evaluation.status !== currentDbRow.status 
-          ? (evaluation.status as any) 
-          : undefined,
-
-        execution_time_ms: evaluation.executionTimeMs !== currentDbRow.execution_time_ms 
-          ? evaluation.executionTimeMs 
-          : undefined,
-
-        score: evaluation.score !== currentDbRow.score 
-          ? evaluation.score 
-          : undefined,
-
-        result: evaluation.resultJson !== currentDbRow.result 
-          ? evaluation.resultJson 
-          : undefined,
-
-        feedback: evaluation.feedback !== currentDbRow.feedback 
-          ? evaluation.feedback 
-          : undefined,
-      },
-    });
   }
 }
