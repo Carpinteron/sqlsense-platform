@@ -8,7 +8,8 @@ import { ISqlExecutor } from '../domain/interfaces/sql-executor.interface';
 import { IAIAssistant } from '../domain/interfaces/ai-assistant.interface';
 import { SqlExecutorStub } from './external/sql-executor.stub';
 import { AIAssistantStub } from './external/ai-assistant.stub';
-import { SubmissionRepositoryMock } from './persistence/submission-repository.mock';
+import { PrismaSubmissionRepository } from './persistence/prisma-submission.repository';
+import { PrismaModule } from '../../shared/infrastructure/prisma/pisma.module'; 
 
 @Module({
   imports: [
@@ -24,13 +25,14 @@ import { SubmissionRepositoryMock } from './persistence/submission-repository.mo
     BullModule.registerQueue({
       name: 'submission-queue',
     }),
+    PrismaModule,
 ],
     providers: [
     SubmissionProcessor,
     EvaluateSubmissionUseCase,
     {
       provide: 'ISubmissionRepository',
-      useClass: SubmissionRepositoryMock, 
+      useClass: PrismaSubmissionRepository, 
     },
     {
       provide: 'ISqlExecutor',
