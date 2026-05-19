@@ -8,6 +8,7 @@ import { SchemasModule } from './schemas/schemas.module';
 import { RetoModule } from './challenges/reto.module';
 import { MockDataModule } from './mock-data/mock-data.module';
 import { UsersModule } from './users/users.module';
+import { SubmissionsModule } from './submissions/submissions.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     RetoModule,
     MockDataModule,
     UsersModule,
+    SubmissionsModule,
   ],
 })
 export class AppModule {}

@@ -208,3 +208,4 @@ VALUES (
     '$2b$10$M/kq/PF4.AVHaKe8xG3HLeIlTXVqdLMXHqA6QxTF.pIDDTjWCUNV6', 
     'ADMIN'
 );
+
