@@ -2,6 +2,7 @@ import type { ISubmissionRepository } from '../../domain/interfaces/submission-r
 import type { ISqlExecutor } from '../../domain/interfaces/sql-executor.interface';
 import type { IAIAssistant } from '../../domain/interfaces/ai-assistant.interface';
 import { Injectable, Inject } from '@nestjs/common';
+import { Evaluation } from '../../domain/entities/evaluation.entity';
 
 @Injectable()
 export class EvaluateSubmissionUseCase {
@@ -15,8 +16,17 @@ export class EvaluateSubmissionUseCase {
   ) {}
 
   async execute(submissionId: string): Promise<void> {
-    // 1. Obtener la entidad 
+    // 1. Obtener la entidad y actualizar inmediatamente a RUNNING
     const evaluation = await this._submissionRepository.findById(submissionId);
+    
+    evaluation.applyResults({
+      status: 'RUNNING',
+      executionTimeMs: 0,
+      score: 0,
+      result: null,
+      feedback: 'La entrega se está procesando actualmente...'
+    });
+    await this._submissionRepository.update(evaluation);
     
     // 2. Obtener info del reto 
     const challengeData = await this._submissionRepository.getChallengeContext(evaluation.challengeId);
@@ -29,40 +39,73 @@ export class EvaluateSubmissionUseCase {
         studentQuery: evaluation.query
       });
 
-      // 4. Obtener evaluación 
+      // Rrrores del Runner (timeout, sintaxis, runtime)
+      if (runnerResult.status === 'TIME_LIMIT_EXCEEDED') {
+        evaluation.applyResults({
+          status: 'TIME_LIMIT_EXCEEDED',
+          executionTimeMs: runnerResult.executionTimeMs,
+          score: 0,
+          result: null,
+          feedback: 'Tu consulta excedió el tiempo límite de ejecución configurado.'
+        });
+        return; 
+      }
+
+      if (runnerResult.status === 'SYNTAX_ERROR') {
+        evaluation.applyResults({
+          status: 'SYNTAX_ERROR',
+          executionTimeMs: runnerResult.executionTimeMs,
+          score: 0,
+          result: null,
+          feedback: `Error de sintaxis SQL:\n${runnerResult.error}`
+        });
+        return;
+      }
+
+      if (runnerResult.status === 'RUNTIME_ERROR') {
+        evaluation.applyResults({
+          status: 'RUNTIME_ERROR',
+          executionTimeMs: runnerResult.executionTimeMs,
+          score: 0,
+          result: null,
+          feedback: `Error de ejecución (Runtime) en la base de datos:\n${runnerResult.error}`
+        });
+        return;
+      }
+
       const aiResult = await this._aiAssistant.evaluate(
         evaluation.query,
         challengeData.expected_result,
         runnerResult.data,
-        runnerResult.error
+        undefined
       );
 
-      // 5. Obtener tips de optimización 
       let tips = '';
-      if (runnerResult.success) {
+      if (aiResult.requiresOptimization) {
         tips = await this._aiAssistant.getOptimizationTips(evaluation.query, runnerResult.executionTimeMs);
       }
 
-      // 6. Actualizar la entidad con toda la info recolectada
+      // 6. Determinar el estado final 
+      const finalStatus = Evaluation.determineFinalStatus(aiResult.score, aiResult.requiresOptimization);
+
       evaluation.applyResults({
-        status: runnerResult.success ? (aiResult.score >= 3 ? 'ACCEPTED' : 'WRONG_ANSWER') : 'SYNTAX_ERROR',
+        status: finalStatus,
         executionTimeMs: runnerResult.executionTimeMs,
         score: aiResult.score,
         result: runnerResult.data,
-        feedback: `${aiResult.feedback}\n\n${tips}`
+        feedback: tips ? `${aiResult.feedback}\n\n${tips}` : aiResult.feedback
       });
 
-    } catch (error) {
+    } catch (error: any) {
       evaluation.applyResults({
         status: 'RUNTIME_ERROR',
         executionTimeMs: 0,
         score: 0,
         result: null,
-        feedback: 'Ocurrió un error inesperado en el sistema de evaluación.'
+        feedback: `Ocurrió un error inesperado en el sistema de evaluación externo: ${error.message || error}`
       });
+    } finally {
+      await this._submissionRepository.update(evaluation);
     }
-
-    // 7. Persistir cambios en db
-    await this._submissionRepository.update(evaluation);
   }
 }

@@ -37,4 +37,15 @@ export class Evaluation {
     this._feedback = params.feedback;
   }
 
+  public static determineFinalStatus(score: number, requiresOptimization: boolean): 'ACCEPTED' | 'WRONG_ANSWER' | 'OPTIMIZATION_REQUIRED' {
+    if (score < 3) {
+      return 'WRONG_ANSWER';
+    }
+
+    if (requiresOptimization) {
+      return 'OPTIMIZATION_REQUIRED';
+    }
+
+    return 'ACCEPTED';
+  }
 }
