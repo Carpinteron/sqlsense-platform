@@ -6,7 +6,7 @@ import { EvaluateSubmissionUseCase } from '../application/use-cases/evaluate-sub
 import { ISubmissionRepository } from '../domain/interfaces/submission-repository.interface';
 import { ISqlExecutor } from '../domain/interfaces/sql-executor.interface';
 import { IAIAssistant } from '../domain/interfaces/ai-assistant.interface';
-import { SqlExecutorStub } from './external/sql-executor.stub';
+import { SqlExecutorPostgres } from './external/sql-executor.postgres';
 import { AIAssistantStub } from './external/ai-assistant.stub';
 import { PrismaSubmissionRepository } from './persistence/prisma-submission.repository';
 import { PrismaModule } from '../../shared/infrastructure/prisma/pisma.module'; 
@@ -36,7 +36,7 @@ import { PrismaModule } from '../../shared/infrastructure/prisma/pisma.module';
     },
     {
       provide: 'ISqlExecutor',
-      useClass: SqlExecutorStub,
+      useClass: SqlExecutorPostgres,
     },
     {
       provide: 'IAIAssistant',

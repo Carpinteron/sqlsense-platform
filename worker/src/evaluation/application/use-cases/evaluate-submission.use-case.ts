@@ -36,7 +36,8 @@ export class EvaluateSubmissionUseCase {
       const runnerResult = await this._sqlExecutor.runInSandbox({
         schema: challengeData.schema_sql,
         seed: challengeData.seed_data_sql,
-        studentQuery: evaluation.query
+        studentQuery: evaluation.query,
+        challengeId: evaluation.challengeId
       });
 
       // Rrrores del Runner (timeout, sintaxis, runtime)
