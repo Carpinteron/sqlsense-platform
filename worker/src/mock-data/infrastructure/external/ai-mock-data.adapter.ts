@@ -62,7 +62,7 @@ export class AiMockDataAdapter implements IAiMockDataPort {
           model,
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: JSON.stringify(spec, null, 2) },
+            { role: 'user', content: `${JSON.stringify(spec, null, 2)}\n\nVariation seed: ${Math.random().toString(36).slice(2, 8)}` },
           ],
           temperature,
           max_tokens: maxTokens,
