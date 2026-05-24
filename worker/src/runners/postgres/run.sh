@@ -39,8 +39,13 @@ if ! psql -h 127.0.0.1 -p "$DB_PORT" -d "$DB_NAME" -v ON_ERROR_STOP=1 -f "$TMP_D
   exit 0
 fi
 
-# TODO: Definir e implementar la estrategia final para cargar seed/data del reto.
-# Por ahora solo reservamos el espacio para la futura ejecución de seed.sql.
+if [ -n "$(printf '%s' "$SEED_SQL" | tr -d '[:space:]')" ]; then
+  if ! psql -h 127.0.0.1 -p "$DB_PORT" -d "$DB_NAME" -v ON_ERROR_STOP=1 -f "$TMP_DIR/seed.sql" >/dev/null 2>"$TMP_DIR/seed.err"; then
+    ERR_MSG="$(tr -d '\r' < "$TMP_DIR/seed.err" | tail -n 20)"
+    jq -n --arg err "$ERR_MSG" '{status:"RUNTIME_ERROR", data:null, error:$err, executionTimeMs:0}'
+    exit 0
+  fi
+fi
 
 START_MS="$(date +%s%3N)"
 if ! QUERY_OUTPUT="$(psql -h 127.0.0.1 -p "$DB_PORT" -d "$DB_NAME" -v ON_ERROR_STOP=1 -A -F ',' -P footer=off -f "$TMP_DIR/query.sql" 2>"$TMP_DIR/query.err")"; then
