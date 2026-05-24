@@ -31,6 +31,8 @@ import { GetCursosUseCase } from '../../aplication/use-cases/get-cursos.use-case
 import { GetCursoUseCase } from '../../aplication/use-cases/get-curso.use-case';
 import { UpdateCursoUseCase } from '../../aplication/use-cases/update-curso.use-case';
 import { DeleteCursoUseCase } from '../../aplication/use-cases/delete-curso.use-case';
+import { AddStudentToCursoUseCase } from '../../aplication/use-cases/add-student-to-curso.use-case';
+import { AddStudentDto } from '../../aplication/dtos/add-student.dto';
 import { Curso } from '../../domain/entities/curso.entity';
 import { CreateCursoDto } from '../../aplication/dtos/create-curso.dto';
 import { UpdateCursoDto } from '../../aplication/dtos/update-curso.dto';
@@ -47,6 +49,7 @@ export class CursosController {
     private readonly getCursoUseCase: GetCursoUseCase,
     private readonly updateCursoUseCase: UpdateCursoUseCase,
     private readonly deleteCursoUseCase: DeleteCursoUseCase,
+    private readonly addStudentToCursoUseCase: AddStudentToCursoUseCase,
   ) {}
 
   @Get()
@@ -216,6 +219,31 @@ export class CursosController {
       throw new BadRequestException(
         error instanceof Error ? error.message : 'Error al eliminar el curso',
       );
+    }
+  }
+
+  @Post(':id/students')
+  @HttpCode(201)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
+  @ApiOperation({ summary: 'Agregar estudiante al curso' })
+  @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiBody({ type: AddStudentDto })
+  @ApiResponse({ status: 201, description: 'Estudiante añadido al curso' })
+  async addStudentToCurso(@Param('id') id: string, @Body() body: AddStudentDto) {
+    try {
+      const studentId = body.studentId;
+      if (typeof studentId !== 'number') {
+        throw new BadRequestException('studentId debe ser un número');
+      }
+
+      await this.addStudentToCursoUseCase.execute(id, studentId);
+      return { message: 'Estudiante añadido al curso' };
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('no encontrado')) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error instanceof Error ? error.message : 'Error al agregar estudiante');
     }
   }
 }

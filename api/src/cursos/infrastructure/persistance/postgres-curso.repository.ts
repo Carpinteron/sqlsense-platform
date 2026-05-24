@@ -82,6 +82,23 @@ export class CursoRepository implements ICursoRepository {
     });
   }
 
+  async addStudent(courseId: string, studentId: number): Promise<void> {
+    try {
+      await this.prismaService.courseStudent.create({
+        data: {
+          course_id: courseId,
+          student_id: studentId,
+        },
+      });
+    } catch (error: any) {
+      // Prisma unique constraint on composite key will throw a known request error
+      if (error?.code === 'P2002') {
+        throw new Error('Estudiante ya inscrito en el curso');
+      }
+      throw error;
+    }
+  }
+
   private toDomain(course: CourseRow): Curso {
     return {
       id: course.id,

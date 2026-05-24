@@ -7,4 +7,5 @@ export interface ICursoRepository {
   findByCode(code: string): Promise<Curso | null>;
   update(id: string, updates: Partial<Omit<Curso, 'id' | 'createdAt'>>): Promise<Curso>;
   delete(id: string): Promise<void>;
+  addStudent(courseId: string, studentId: number): Promise<void>;
 }
