@@ -8,6 +8,7 @@ export interface ExecutionContext {
   schema: string;       
   seed: string;      
   studentQuery: string;
+  challengeId: string;
 }
 
 export interface RunnerResponse {

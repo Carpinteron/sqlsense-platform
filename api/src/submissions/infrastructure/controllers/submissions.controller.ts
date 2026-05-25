@@ -53,7 +53,7 @@ export class SubmissionsController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @SetMetadata('roles', ['STUDENT'])
+  @SetMetadata('roles', ['STUDENT','ADMIN'])
   @ApiOperation({ 
     summary: 'Crear entrega de un reto', 
     description: 'Roles: **STUDENT**. Extrae el ID del estudiante directamente de la sesión segura del JWT.' 

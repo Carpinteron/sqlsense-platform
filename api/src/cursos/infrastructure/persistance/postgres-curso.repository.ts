@@ -82,6 +82,77 @@ export class CursoRepository implements ICursoRepository {
     });
   }
 
+  async addStudent(courseId: string, studentId: number): Promise<void> {
+    try {
+      await this.prismaService.courseStudent.create({
+        data: {
+          course_id: courseId,
+          student_id: studentId,
+        },
+      });
+    } catch (error: any) {
+      // Prisma unique constraint on composite key will throw a known request error
+      if (error?.code === 'P2002') {
+        throw new Error('Estudiante ya inscrito en el curso');
+      }
+      throw error;
+    }
+  }
+
+  async findStudentsByCourseId(courseId: string): Promise<Array<{
+    id: number;
+    email: string;
+    role: string;
+    createdAt: Date | null;
+  }>> {
+    const courseStudents = await this.prismaService.courseStudent.findMany({
+      where: { course_id: courseId },
+      select: {
+        users: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: {
+        student_id: 'asc',
+      },
+    });
+
+    return courseStudents.map((courseStudent) => ({
+      id: courseStudent.users.id,
+      email: courseStudent.users.email,
+      role: courseStudent.users.role,
+      createdAt: courseStudent.users.createdAt ?? null,
+    }));
+  }
+
+  async findCoursesByStudentId(studentId: number): Promise<Curso[]> {
+    const courseStudents = await this.prismaService.courseStudent.findMany({
+      where: { student_id: studentId },
+      select: {
+        courses: true,
+      },
+      orderBy: {
+        course_id: 'asc',
+      },
+    });
+
+    return courseStudents.map((courseStudent) => this.toDomain(courseStudent.courses));
+  }
+
+  async studentExists(studentId: number): Promise<boolean> {
+    const student = await this.prismaService.user.findUnique({
+      where: { id: studentId },
+      select: { id: true },
+    });
+
+    return Boolean(student);
+  }
+
   private toDomain(course: CourseRow): Curso {
     return {
       id: course.id,

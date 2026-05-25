@@ -12,6 +12,7 @@ import {
   BadRequestException,
   NotFoundException,
   HttpCode,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -31,11 +32,16 @@ import { GetCursosUseCase } from '../../aplication/use-cases/get-cursos.use-case
 import { GetCursoUseCase } from '../../aplication/use-cases/get-curso.use-case';
 import { UpdateCursoUseCase } from '../../aplication/use-cases/update-curso.use-case';
 import { DeleteCursoUseCase } from '../../aplication/use-cases/delete-curso.use-case';
+import { AddStudentToCursoUseCase } from '../../aplication/use-cases/add-student-to-curso.use-case';
+import { GetCourseStudentsUseCase } from '../../aplication/use-cases/get-course-students.use-case';
+import { GetStudentCursosUseCase } from '../../aplication/use-cases/get-student-cursos.use-case';
+import { AddStudentDto } from '../../aplication/dtos/add-student.dto';
 import { Curso } from '../../domain/entities/curso.entity';
 import { CreateCursoDto } from '../../aplication/dtos/create-curso.dto';
 import { UpdateCursoDto } from '../../aplication/dtos/update-curso.dto';
 import { CursoResponseDto } from '../../aplication/dtos/curso-response.dto';
 import { DeleteCursoResponseDto } from '../../aplication/dtos/delete-curso-response.dto';
+import { UserResponseDto } from '../../../users/application/dtos/user-response.dto';
 
 @ApiTags('Cursos')
 @ApiBearerAuth('JWT')
@@ -47,6 +53,9 @@ export class CursosController {
     private readonly getCursoUseCase: GetCursoUseCase,
     private readonly updateCursoUseCase: UpdateCursoUseCase,
     private readonly deleteCursoUseCase: DeleteCursoUseCase,
+    private readonly addStudentToCursoUseCase: AddStudentToCursoUseCase,
+    private readonly getCourseStudentsUseCase: GetCourseStudentsUseCase,
+    private readonly getStudentCursosUseCase: GetStudentCursosUseCase,
   ) {}
 
   @Get()
@@ -89,6 +98,50 @@ export class CursosController {
       }
       throw new BadRequestException(
         error instanceof Error ? error.message : 'Error al obtener el curso',
+      );
+    }
+  }
+
+  @Get(':id/students')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
+  @ApiOperation({ summary: 'Listar estudiantes de un curso' })
+  @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiResponse({ status: 200, description: 'Lista de estudiantes', type: [UserResponseDto] })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  async getCourseStudents(@Param('id') id: string) {
+    try {
+      return await this.getCourseStudentsUseCase.execute(id);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('no encontrado')) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Error al obtener estudiantes del curso',
+      );
+    }
+  }
+
+  @Get('estudiantes/:studentId')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @SetMetadata('roles', ['STUDENT', 'PROFESSOR', 'ADMIN'])
+  @ApiOperation({ summary: 'Listar cursos de un estudiante' })
+  @ApiParam({ name: 'studentId', example: 2 })
+  @ApiResponse({ status: 200, description: 'Lista de cursos', type: [CursoResponseDto] })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  async getStudentCursos(@Param('studentId', ParseIntPipe) studentId: number) {
+    try {
+      return await this.getStudentCursosUseCase.execute(studentId);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('no encontrado')) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Error al obtener cursos del estudiante',
       );
     }
   }
@@ -216,6 +269,31 @@ export class CursosController {
       throw new BadRequestException(
         error instanceof Error ? error.message : 'Error al eliminar el curso',
       );
+    }
+  }
+
+  @Post(':id/student')
+  @HttpCode(201)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
+  @ApiOperation({ summary: 'Agregar estudiante al curso' })
+  @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiBody({ type: AddStudentDto })
+  @ApiResponse({ status: 201, description: 'Estudiante añadido al curso' })
+  async addStudentToCurso(@Param('id') id: string, @Body() body: AddStudentDto) {
+    try {
+      const studentId = body.studentId;
+      if (typeof studentId !== 'number') {
+        throw new BadRequestException('studentId debe ser un número');
+      }
+
+      await this.addStudentToCursoUseCase.execute(id, studentId);
+      return { message: 'Estudiante añadido al curso' };
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('no encontrado')) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error instanceof Error ? error.message : 'Error al agregar estudiante');
     }
   }
 }
