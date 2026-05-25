@@ -7,6 +7,8 @@ import { GetCursoUseCase } from './aplication/use-cases/get-curso.use-case';
 import { UpdateCursoUseCase } from './aplication/use-cases/update-curso.use-case';
 import { DeleteCursoUseCase } from './aplication/use-cases/delete-curso.use-case';
 import { AddStudentToCursoUseCase } from './aplication/use-cases/add-student-to-curso.use-case';
+import { GetCourseStudentsUseCase } from './aplication/use-cases/get-course-students.use-case';
+import { GetStudentCursosUseCase } from './aplication/use-cases/get-student-cursos.use-case';
 import { CursosController } from './infrastructure/controllers/cursos.controller';
 
 @Module({
@@ -23,6 +25,8 @@ import { CursosController } from './infrastructure/controllers/cursos.controller
     UpdateCursoUseCase,
     DeleteCursoUseCase,
     AddStudentToCursoUseCase,
+    GetCourseStudentsUseCase,
+    GetStudentCursosUseCase,
   ],
   exports: ["CURSO_REPOSITORY"],
 })

@@ -8,4 +8,12 @@ export interface ICursoRepository {
   update(id: string, updates: Partial<Omit<Curso, 'id' | 'createdAt'>>): Promise<Curso>;
   delete(id: string): Promise<void>;
   addStudent(courseId: string, studentId: number): Promise<void>;
+  findStudentsByCourseId(courseId: string): Promise<Array<{
+    id: number;
+    email: string;
+    role: string;
+    createdAt: Date | null;
+  }>>;
+  findCoursesByStudentId(studentId: number): Promise<Curso[]>;
+  studentExists(studentId: number): Promise<boolean>;
 }

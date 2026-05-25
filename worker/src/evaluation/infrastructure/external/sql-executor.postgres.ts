@@ -24,9 +24,17 @@ export class SqlExecutorPostgres implements ISqlExecutor {
 
   async runInSandbox(context: ExecutionContext): Promise<RunnerResponse> {
     try {
+      console.log(
+        `[SqlExecutorPostgres] Iniciando sandbox para challengeId=${context.challengeId}`,
+      );
+      console.log(
+        `[SqlExecutorPostgres] Payload recibido: schema=${context.schema.length} chars, seed=${context.seed.length} chars, query=${context.studentQuery.length} chars`,
+      );
+
       await this._ensureRunnerImageBuilt();
 
       const payload = JSON.stringify(context);
+      console.log('[SqlExecutorPostgres] Ejecutando contenedor PostgreSQL temporal...');
       const { stdout, stderr, timedOut } = await this._runCommand(
         'docker',
         [
@@ -46,6 +54,9 @@ export class SqlExecutorPostgres implements ISqlExecutor {
       );
 
       if (timedOut) {
+        console.warn(
+          `[SqlExecutorPostgres] Timeout alcanzado para challengeId=${context.challengeId}`,
+        );
         return {
           status: 'TIME_LIMIT_EXCEEDED',
           data: null,
@@ -56,6 +67,9 @@ export class SqlExecutorPostgres implements ISqlExecutor {
 
       const output = stdout.trim();
       if (!output) {
+        console.error(
+          `[SqlExecutorPostgres] El runner no devolvió stdout. stderr=${stderr || 'sin stderr'}`,
+        );
         return {
           status: 'RUNTIME_ERROR',
           data: null,
@@ -66,8 +80,10 @@ export class SqlExecutorPostgres implements ISqlExecutor {
 
       let parsed: RawRunnerResult;
       try {
+        console.log(`[SqlExecutorPostgres] Raw output del runner: ${output}`);
         parsed = JSON.parse(output) as RawRunnerResult;
       } catch {
+        console.error('[SqlExecutorPostgres] No se pudo parsear la salida JSON del runner.');
         return {
           status: 'RUNTIME_ERROR',
           data: null,
@@ -84,6 +100,13 @@ export class SqlExecutorPostgres implements ISqlExecutor {
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('spawn docker ENOENT')) {
+        console.error(
+          '[SqlExecutorPostgres] Docker no está disponible en el entorno del worker. Verifica que Docker esté instalado y accesible en PATH.',
+        );
+      } else {
+        console.error('[SqlExecutorPostgres] Error inesperado ejecutando el sandbox:', message);
+      }
       return {
         status: 'RUNTIME_ERROR',
         data: null,
@@ -98,8 +121,11 @@ export class SqlExecutorPostgres implements ISqlExecutor {
       return;
     }
 
-    const runnerDir = resolve(__dirname, '../../../runners/postgres');
+    const runnerDir = resolve(__dirname, '../../../../runners/postgres');
     const dockerFilePath = resolve(runnerDir, 'Dockerfile');
+
+    console.log(`[SqlExecutorPostgres] Construyendo imagen runner: ${SqlExecutorPostgres._runnerImageTag}`);
+    console.log(`[SqlExecutorPostgres] runnerDir=${runnerDir}`);
 
     const { stderr, code } = await this._runCommand(
       'docker',
@@ -109,9 +135,13 @@ export class SqlExecutorPostgres implements ISqlExecutor {
     );
 
     if (code !== 0) {
+      console.error(
+        `[SqlExecutorPostgres] Falló la construcción de la imagen. stderr=${stderr || 'sin stderr'}`,
+      );
       throw new Error(`No se pudo construir la imagen del runner PostgreSQL: ${stderr}`);
     }
 
+    console.log('[SqlExecutorPostgres] Imagen runner construida correctamente.');
     SqlExecutorPostgres._isImageReady = true;
   }
 
@@ -122,6 +152,7 @@ export class SqlExecutorPostgres implements ISqlExecutor {
     timeoutMs = 0,
   ): Promise<{ stdout: string; stderr: string; code: number; timedOut: boolean }> {
     return new Promise((resolvePromise, rejectPromise) => {
+      console.log(`[SqlExecutorPostgres] Ejecutando comando: ${command} ${args.join(' ')}`);
       const child = spawn(command, args, {
         stdio: 'pipe',
       });
@@ -150,6 +181,7 @@ export class SqlExecutorPostgres implements ISqlExecutor {
         if (timeoutHandle) {
           clearTimeout(timeoutHandle);
         }
+        console.error(`[SqlExecutorPostgres] Error al lanzar proceso: ${error.message}`);
         rejectPromise(error);
       });
 

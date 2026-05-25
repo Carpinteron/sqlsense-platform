@@ -7,4 +7,6 @@ WORKDIR /app
 COPY run.sh /app/run.sh
 RUN chmod +x /app/run.sh
 
+USER postgres
+
 ENTRYPOINT ["/app/run.sh"]
