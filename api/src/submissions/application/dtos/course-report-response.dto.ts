@@ -1,7 +1,7 @@
-import { IsUUID, IsString, IsNotEmpty, IsNumber, IsDateString, IsInt, IsArray } from 'class-validator';
+import { IsUUID, IsNotEmpty, IsNumber, IsDateString, IsInt, IsArray } from 'class-validator';
 
 export class StudentScoreDto {
-  @IsInt({}, { message: 'El studentId debe ser un número entero.' })
+  @IsInt({ message: 'El studentId debe ser un número entero.' })
   studentId: number;
 
   @IsNumber({}, { message: 'El averageScore debe ser un número.' })
@@ -10,6 +10,7 @@ export class StudentScoreDto {
 
 export class ChallengeAverageDto {
   @IsUUID('4', { message: 'El challengeId debe ser un UUID v4 válido.' })
+  @IsNotEmpty()
   challengeId: string;
 
   @IsNumber({}, { message: 'El averageScore debe ser un número.' })
@@ -18,15 +19,16 @@ export class ChallengeAverageDto {
 
 export class CourseReportResponseDto {
   @IsUUID('4', { message: 'El courseId debe ser un UUID v4 válido.' })
+  @IsNotEmpty()
   courseId: string;
 
-  @IsDateString({ message: 'El generatedAt debe ser una fecha válida.' })
+  @IsDateString()
   generatedAt: Date;
 
-  @IsInt({}, { message: 'El totalStudents debe ser un número entero.' })
+  @IsInt({ message: 'El totalStudents debe ser un número entero.' })
   totalStudents: number;
 
-  @IsInt({}, { message: 'El totalChallenges debe ser un número entero.' })
+  @IsInt({ message: 'El totalChallenges debe ser un número entero.' })
   totalChallenges: number;
 
   @IsArray({ message: 'El challenges debe ser un arreglo.' })
