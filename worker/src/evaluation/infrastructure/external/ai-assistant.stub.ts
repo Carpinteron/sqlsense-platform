@@ -4,10 +4,8 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AIAssistantStub implements IAIAssistant {
   async evaluate(
-    query: string, 
-    expectedResult: any, 
-    actualResult: any, 
-    error?: string
+    userQuery: string, 
+    expectedQuery: any, 
   ): Promise<EvaluationResult> {
     return {
       score: 5,

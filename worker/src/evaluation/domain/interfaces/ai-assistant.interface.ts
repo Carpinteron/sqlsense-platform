@@ -6,10 +6,8 @@ export interface EvaluationResult {
 
 export interface IAIAssistant {
   evaluate(
-    query: string,
-    expectedResult: any,
-    actualResult: any,
-    error?: string
+    userQuery: string,
+    expectedQuery: any,
   ): Promise<EvaluationResult>;
 
   getOptimizationTips(

@@ -77,8 +77,6 @@ export class EvaluateSubmissionUseCase {
       const aiResult = await this._aiAssistant.evaluate(
         evaluation.query,
         challengeData.expected_result,
-        runnerResult.data,
-        undefined
       );
 
       let tips = '';
