@@ -17,7 +17,6 @@ echo "[postgres-runner] schema_chars=${#SCHEMA_SQL} seed_chars=${#SEED_SQL} quer
 TMP_DIR="$(mktemp -d)"
 DB_NAME="challenge_$(echo "$CHALLENGE_ID" | tr -cd '[:alnum:]' | cut -c1-20)_$RANDOM"
 DB_PORT=5432
-SQL_TIMEOUT_MS="${SQL_TIMEOUT_MS:-7000}"
 
 cleanup() {
   if [ -n "${PG_PID:-}" ] && kill -0 "$PG_PID" 2>/dev/null; then
@@ -43,8 +42,8 @@ echo "[postgres-runner] Base temporal creada: $DB_NAME" >&2
 
 printf '%s\n' "$SCHEMA_SQL" > "$TMP_DIR/schema.sql"
 printf '%s\n' "$SEED_SQL" > "$TMP_DIR/seed.sql"
-printf 'SET statement_timeout = %s;\n%s\n' "$SQL_TIMEOUT_MS" "$STUDENT_QUERY" > "$TMP_DIR/query.sql"
-printf 'SET statement_timeout = %s;\nEXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) %s\n' "$SQL_TIMEOUT_MS" "$STUDENT_QUERY" > "$TMP_DIR/explain.sql"
+printf '%s\n' "$STUDENT_QUERY" > "$TMP_DIR/query.sql"
+printf '%s\n' "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) $STUDENT_QUERY" > "$TMP_DIR/explain.sql"
 
 echo "[postgres-runner] Ejecutando schema.sql" >&2
 
@@ -77,11 +76,7 @@ if ! QUERY_OUTPUT="$(psql -h 127.0.0.1 -p "$DB_PORT" -d "$DB_NAME" -v ON_ERROR_S
   ELAPSED_MS=$((END_MS - START_MS))
   ERR_MSG="$(tr -d '\r' < "$TMP_DIR/query.err" | tail -n 20)"
   echo "[postgres-runner] Falló query del estudiante: $ERR_MSG" >&2
-  if printf '%s' "$ERR_MSG" | grep -qi 'statement timeout'; then
-    jq -n --arg err "$ERR_MSG" --argjson ms "$ELAPSED_MS" '{status:"TIME_LIMIT_EXCEEDED", data:null, error:$err, executionTimeMs:$ms}'
-  else
-    jq -n --arg err "$ERR_MSG" --argjson ms "$ELAPSED_MS" '{status:"RUNTIME_ERROR", data:null, error:$err, executionTimeMs:$ms}'
-  fi
+  jq -n --arg err "$ERR_MSG" --argjson ms "$ELAPSED_MS" '{status:"RUNTIME_ERROR", data:null, error:$err, executionTimeMs:$ms}'
   exit 0
 fi
 END_MS="$(date +%s%3N)"
@@ -108,6 +103,6 @@ echo "[postgres-runner] Plan bruto: $EXPLAIN_OUTPUT" >&2
 # Se hace echo del plan en formato JSON y el tiempo de ejecución.
 jq -n \
   --arg output "$QUERY_OUTPUT" \
-  --arg explain "$EXPLAIN_OUTPUT" \
+  --argjson explain "$EXPLAIN_OUTPUT" \
   --argjson ms "$ELAPSED_MS" \
   '{status:"SUCCESS", data:[{raw:$output}], explainAnalyze:$explain, executionTimeMs:$ms}'
