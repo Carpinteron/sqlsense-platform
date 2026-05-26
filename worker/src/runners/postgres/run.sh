@@ -43,6 +43,7 @@ echo "[postgres-runner] Base temporal creada: $DB_NAME" >&2
 printf '%s\n' "$SCHEMA_SQL" > "$TMP_DIR/schema.sql"
 printf '%s\n' "$SEED_SQL" > "$TMP_DIR/seed.sql"
 printf '%s\n' "$STUDENT_QUERY" > "$TMP_DIR/query.sql"
+printf '%s\n' "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) $STUDENT_QUERY" > "$TMP_DIR/explain.sql"
 
 echo "[postgres-runner] Ejecutando schema.sql" >&2
 
@@ -84,8 +85,24 @@ ELAPSED_MS=$((END_MS - START_MS))
 echo "[postgres-runner] Query ejecutado correctamente en ${ELAPSED_MS}ms" >&2
 echo "[postgres-runner] Resultado bruto: $QUERY_OUTPUT" >&2
 
-# Se hace echo del resultado y el tiempo de ejecución.
+echo "[postgres-runner] Ejecutando EXPLAIN del query del estudiante" >&2
+if ! EXPLAIN_OUTPUT="$(psql -h 127.0.0.1 -p "$DB_PORT" -d "$DB_NAME" -v ON_ERROR_STOP=1 -A -t -F ',' -P footer=off -f "$TMP_DIR/explain.sql" 2>"$TMP_DIR/explain.err")"; then
+  ERR_MSG="$(tr -d '\r' < "$TMP_DIR/explain.err" | tail -n 20)"
+  echo "[postgres-runner] Falló EXPLAIN del query del estudiante: $ERR_MSG" >&2
+  jq -n \
+    --arg output "$QUERY_OUTPUT" \
+    --arg err "$ERR_MSG" \
+    --argjson ms "$ELAPSED_MS" \
+    '{status:"SUCCESS", data:[{raw:$output}], explainAnalyze:null, error:$err, executionTimeMs:$ms}'
+  exit 0
+fi
+
+echo "[postgres-runner] EXPLAIN ejecutado correctamente" >&2
+echo "[postgres-runner] Plan bruto: $EXPLAIN_OUTPUT" >&2
+
+# Se hace echo del plan en formato JSON y el tiempo de ejecución.
 jq -n \
   --arg output "$QUERY_OUTPUT" \
+  --argjson explain "$EXPLAIN_OUTPUT" \
   --argjson ms "$ELAPSED_MS" \
-  '{status:"SUCCESS", data:[{raw:$output}], executionTimeMs:$ms}'
+  '{status:"SUCCESS", data:[{raw:$output}], explainAnalyze:$explain, executionTimeMs:$ms}'

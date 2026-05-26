@@ -12,12 +12,14 @@ type RawRunnerResult = {
   data?: RunnerResponse['data'];
   error?: string;
   executionTimeMs?: number;
+  explainAnalyze?: string;
+
 };
 
 @Injectable()
 export class SqlExecutorPostgres implements ISqlExecutor {
   private static readonly _runnerImageTag = 'sqlsense-postgres-runner:latest';
-  private static readonly _runnerTimeoutMs = 7_000;
+  private static readonly _runnerTimeoutMs = 100_000;
   private static readonly _runnerMemoryLimit = '512m';
   private static readonly _runnerCpuLimit = '0.5';
   private static _isImageReady = false;
@@ -97,6 +99,7 @@ export class SqlExecutorPostgres implements ISqlExecutor {
         data: parsed.data ?? null,
         error: parsed.error,
         executionTimeMs: parsed.executionTimeMs ?? 0,
+        explainAnalyze: parsed.explainAnalyze,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -112,6 +115,7 @@ export class SqlExecutorPostgres implements ISqlExecutor {
         data: null,
         executionTimeMs: 0,
         error: message,
+        explainAnalyze: null,
       };
     }
   }
