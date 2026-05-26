@@ -19,7 +19,7 @@ type RawRunnerResult = {
 @Injectable()
 export class SqlExecutorPostgres implements ISqlExecutor {
   private static readonly _runnerImageTag = 'sqlsense-postgres-runner:latest';
-  private static readonly _runnerTimeoutMs = 7_000;
+  private static readonly _runnerTimeoutMs = 100_000;
   private static readonly _runnerMemoryLimit = '512m';
   private static readonly _runnerCpuLimit = '0.5';
   private static _isImageReady = false;
@@ -48,8 +48,6 @@ export class SqlExecutorPostgres implements ISqlExecutor {
           SqlExecutorPostgres._runnerMemoryLimit,
           '--cpus',
           SqlExecutorPostgres._runnerCpuLimit,
-          '-e',
-          `SQL_TIMEOUT_MS=${SqlExecutorPostgres._runnerTimeoutMs}`,
           '-i',
           SqlExecutorPostgres._runnerImageTag,
         ],
