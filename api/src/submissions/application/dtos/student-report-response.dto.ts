@@ -9,31 +9,33 @@ export class ChallengeGradeDto {
   @IsNotEmpty()
   submissionId: string;
 
-  @IsNumber({},{ message: 'El score debe ser un número.' })
+  @IsNumber({}, { message: 'El score debe ser un número.' })
   score: number;
+
   @IsString({ message: 'El status debe ser una cadena de texto.' })
   status: string;
+
   @IsString({ message: 'El feedback debe ser una cadena de texto.' })
   feedback: string;
 
-  @IsDateString({ message: 'El submittedAt debe ser una fecha válida.' })
+  @IsDateString()
   submittedAt: Date | string | null;
 }
 
 export class StudentReportResponseDto {
-  @IsUUID('4', { message: 'El studentId debe ser un UUID v4 válido.' })
+  @IsInt({ message: 'El studentId debe ser un número entero.' })
   @IsNotEmpty()
-  studentId: string;
-  
-  @IsDateString({ message: 'El generatedAt debe ser una fecha válida.' })
+  studentId: number;
+
+  @IsDateString()
   generatedAt: Date;
 
-  @IsInt({}, { message: 'El totalSubmissions debe ser un número entero.' })
+  @IsInt({ message: 'El totalSubmissions debe ser un número entero.' })
   totalSubmissions: number;
 
   @IsNumber({}, { message: 'El averageScore debe ser un número.' })
   averageScore: number;
-  
+
   @IsArray({ message: 'El grades debe ser un arreglo.' })
   grades: ChallengeGradeDto[];
 }
