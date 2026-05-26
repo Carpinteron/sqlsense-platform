@@ -1,119 +1,18 @@
-"use client";
+import { Suspense } from "react";
 
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Database } from "lucide-react";
-import { toast } from "sonner";
+import { LoginForm } from "@/components/auth/login-form";
 
-import { useAuthStore } from "@/store/auth.store";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+type LoginPageProps = {
+  searchParams?: Promise<{ redirect?: string } | undefined>;
+};
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "Debe ser un correo electrónico válido" }),
-  password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-export default function LoginPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const login = useAuthStore((state) => state.login);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  async function onSubmit(data: LoginFormValues) {
-    try {
-      setIsLoading(true);
-      await login(data);
-      toast.success("Inicio de sesión exitoso");
-      
-      const redirectPath = searchParams.get("redirect");
-      router.push(redirectPath || "/dashboard"); // fallback to dashboard
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al iniciar sesión. Verifica tus credenciales.");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const redirectPath = resolvedSearchParams?.redirect;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">
-      <div className="w-full max-w-md space-y-6">
-        <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="p-3 bg-primary/10 rounded-full">
-            <Database className="w-8 h-8 text-primary" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">SQLSense Platform</h1>
-          <p className="text-sm text-muted-foreground">
-            Ingresa a tu cuenta para continuar
-          </p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Iniciar sesión</CardTitle>
-            <CardDescription>
-              Usa tus credenciales para acceder a la plataforma.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Correo electrónico</FormLabel>
-                      <FormControl>
-                        <Input placeholder="admin@sqlsense.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contraseña</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Iniciando..." : "Entrar"}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <Suspense fallback={null}>
+      <LoginForm redirectPath={redirectPath} />
+    </Suspense>
   );
 }

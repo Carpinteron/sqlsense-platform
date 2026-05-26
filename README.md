@@ -43,6 +43,25 @@ Eso levanta:
 - API en `localhost:3001`
 - Worker
 
+## Frontend
+
+El frontend vive en `web/` como una app Next.js independiente. No hace falta mezclarlo con el backend para mantener la arquitectura limpia.
+
+Para levantarlo en desarrollo:
+
+```bash
+cd web
+npm run dev -- --webpack
+```
+
+El frontend queda en `http://localhost:3000`.
+
+Notas:
+
+- En Windows, si `3000` ya está ocupado, Next puede usar otro puerto disponible.
+- El frontend consume la API del backend por HTTP, así que pueden correr en procesos separados sin problema.
+- Si ves advertencias de Git sobre `LF`/`CRLF`, son solo del formato de fin de línea en Windows y no rompen el proyecto.
+
 ## Documentación API con Swagger UI
 
 La API está documentada automáticamente con **Swagger UI**, una interfaz interactiva para probar endpoints sin necesidad de curl o Postman.
