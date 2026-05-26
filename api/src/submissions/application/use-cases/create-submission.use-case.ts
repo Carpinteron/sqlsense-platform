@@ -17,9 +17,23 @@ export class CreateSubmissionUseCase {
 
   async execute(
     dto: CreateSubmissionDto, 
-    studentId: number
+    studentId: number,
+    userRole: string
   ): Promise<SubmissionCreatedResponseDto> {
     
+  const isAdmin = userRole === 'ADMIN';
+
+    if (!isAdmin) {
+      const isEnrolled = await this._submissionRepository.isStudentEnrolledInChallengeCourse(
+        studentId, 
+        dto.challengeId
+      );
+
+      if (!isEnrolled) {
+        throw new Error('No tienes permisos para enviar una solución a este reto (no estás inscrito en el curso).');
+      }
+    }
+
     const newSubmission = {
       studentId: studentId,
       challengeId: dto.challengeId,

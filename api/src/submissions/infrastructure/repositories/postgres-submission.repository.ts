@@ -20,6 +20,23 @@ export class PostgresSubmissionRepository implements ISubmissionRepository {
     return this._mapToDomain(created);
   }
 
+  async isStudentEnrolledInChallengeCourse(studentId: number, challengeId: string): Promise<boolean> {
+  const match = await this._prisma.courseStudent.findFirst({
+    where: {
+      student_id: studentId,
+      courses: {
+        challenges: {
+          some: {
+            id: challengeId
+          }
+        }
+      }
+    }
+  });
+
+  return match !== null;
+}
+
   async findById(id: string): Promise<Submission | null> {
     const found = await this._prisma.submissions.findUnique({
       where: { id },
