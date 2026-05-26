@@ -16,6 +16,7 @@ export interface RunnerResponse {
   data: any[] | null;
   error?: string;   
   executionTimeMs: number;
+  explainAnalyze?: string | null;
 }
 
 export interface ISqlExecutor {

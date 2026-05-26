@@ -12,6 +12,8 @@ type RawRunnerResult = {
   data?: RunnerResponse['data'];
   error?: string;
   executionTimeMs?: number;
+  explainAnalyze?: string;
+
 };
 
 @Injectable()
@@ -46,6 +48,8 @@ export class SqlExecutorPostgres implements ISqlExecutor {
           SqlExecutorPostgres._runnerMemoryLimit,
           '--cpus',
           SqlExecutorPostgres._runnerCpuLimit,
+          '-e',
+          `SQL_TIMEOUT_MS=${SqlExecutorPostgres._runnerTimeoutMs}`,
           '-i',
           SqlExecutorPostgres._runnerImageTag,
         ],
@@ -97,6 +101,7 @@ export class SqlExecutorPostgres implements ISqlExecutor {
         data: parsed.data ?? null,
         error: parsed.error,
         executionTimeMs: parsed.executionTimeMs ?? 0,
+        explainAnalyze: parsed.explainAnalyze,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -112,6 +117,7 @@ export class SqlExecutorPostgres implements ISqlExecutor {
         data: null,
         executionTimeMs: 0,
         error: message,
+        explainAnalyze: null,
       };
     }
   }
