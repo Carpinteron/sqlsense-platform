@@ -69,8 +69,9 @@ export class SubmissionsController {
       }
 
       const studentId = Number(req.user.id);
+      const userRole = req.user.role;
 
-      return await this._createSubmissionUseCase.execute(dto, studentId);
+      return await this._createSubmissionUseCase.execute(dto, studentId, userRole);
     } catch (error) {
       throw new BadRequestException(
         error instanceof Error ? error.message : 'Error al registrar la entrega',

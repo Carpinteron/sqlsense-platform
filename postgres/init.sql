@@ -209,3 +209,47 @@ VALUES (
     'ADMIN'
 );
 
+BEGIN;
+
+-- Limpieza previa por si ya existen para evitar errores de duplicados
+DELETE FROM "challenge"."submissions" WHERE "student_id" = 99;
+DELETE FROM "challenge"."challenges" WHERE "id" = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
+DELETE FROM "academic"."course_students" WHERE "student_id" = 99;
+DELETE FROM "academic"."courses" WHERE "id" = 'aabbccdd-1111-2222-3333-444455556666';
+DELETE FROM "auth"."users" WHERE "id" IN (88, 99);
+
+-- 1. Insertar Profesor (ID: 88)
+INSERT INTO "auth"."users" ("id", "email", "password", "role")
+VALUES (88, 'profesor@sqlsense.com', '$2b$10$M/kq/PF4.AVHaKe8xG3HLeIlTXVqdLMXHqA6QxTF.pIDDTjWCUNV6', 'PROFESSOR');
+
+-- 2. Insertar Estudiante (ID: 99)
+INSERT INTO "auth"."users" ("id", "email", "password", "role")
+VALUES (99, 'estudiante@sqlsense.com', '$2b$10$M/kq/PF4.AVHaKe8xG3HLeIlTXVqdLMXHqA6QxTF.pIDDTjWCUNV6', 'STUDENT');
+
+-- 3. Insertar Curso
+INSERT INTO "academic"."courses" ("id", "name", "code", "period", "group_number", "professor_id")
+VALUES ('aabbccdd-1111-2222-3333-444455556666', 'Curso Manual Postman', 'MANUAL-101', '2026-I', 'G1', 88);
+
+-- 4. Vincular Estudiante al Curso
+INSERT INTO "academic"."course_students" ("course_id", "student_id")
+VALUES ('aabbccdd-1111-2222-3333-444455556666', 99);
+
+-- 5. Insertar Desafío (ID exacto que usaremos en Postman)
+INSERT INTO "challenge"."challenges" (
+    "id", "title", "description", "difficulty", "tags", 
+    "database_engine", "time_limit", "status", "course_id", "created_by"
+)
+VALUES (
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    'Reto Manual de Prueba',
+    'Selecciona el email de todos los usuarios.',
+    'Easy'::"challenge"."difficulty_enum",
+    ARRAY['select'],
+    'PostgreSQL',
+    3000,
+    'published'::"challenge"."status_enum",
+    'aabbccdd-1111-2222-3333-444455556666',
+    88
+);
+
+COMMIT;
