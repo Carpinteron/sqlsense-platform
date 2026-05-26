@@ -12,6 +12,8 @@ import { GetChallengeReportUseCase } from './application/use-cases/get-challenge
 import { SubmissionsController } from './infrastructure/controllers/submissions.controller';
 import { PostgresSubmissionRepository } from './infrastructure/repositories/postgres-submission.repository';
 
+import { GetStudentReportUseCase } from './application/use-cases/get-student-report.use-case';
+
 @Module({
   imports: [
     PrismaModule,
@@ -39,7 +41,7 @@ import { PostgresSubmissionRepository } from './infrastructure/repositories/post
     GetSubmissionsByStudentUseCase,
     GetSubmissionsByChallengeUseCase,
     GetChallengeReportUseCase,
-    
+    GetStudentReportUseCase,
     {
       provide: 'ISubmissionRepository',
       useClass: PostgresSubmissionRepository, 
