@@ -2,17 +2,17 @@
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { PageHeader } from "@/components/shared/page-header";
-import { CoursesManager } from "@/components/courses/courses-manager";
+import { ProfessorsTable } from "@/components/admin/professors-table";
 
-export default function AdminCoursesPage() {
+export default function AdminProfessorsPage() {
   return (
     <ProtectedRoute allowedRoles={["ADMIN"]}>
       <div className="flex flex-col gap-6">
         <PageHeader
-          title="Gestión de Cursos"
-          description="Administra cursos, estudiantes inscritos y retos asociados."
+          title="Gestión de Profesores"
+          description="Visualiza y asigna profesores. Los profesores son usuarios con rol PROFESSOR."
         />
-        <CoursesManager isAdmin />
+        <ProfessorsTable />
       </div>
     </ProtectedRoute>
   );

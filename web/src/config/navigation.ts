@@ -1,10 +1,22 @@
-import { LayoutDashboard, Users, BookOpen, Database, Code, FileText, Settings, Award } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  Database,
+  Code,
+  FileText,
+  Settings,
+  Award,
+  GraduationCap,
+  Sparkles,
+  Terminal,
+} from "lucide-react";
 
 export type NavItem = {
   title: string;
   href: string;
   icon: React.ElementType;
-  roles: string[]; // ['ADMIN', 'PROFESSOR', 'STUDENT'] etc.
+  roles: string[];
 };
 
 export const mainNavigation: NavItem[] = [
@@ -27,22 +39,28 @@ export const mainNavigation: NavItem[] = [
     roles: ["ADMIN"],
   },
   {
+    title: "Profesores",
+    href: "/admin/professors",
+    icon: GraduationCap,
+    roles: ["ADMIN"],
+  },
+  {
     title: "Retos SQL",
     href: "/challenges",
     icon: Code,
-    roles: ["PROFESSOR", "STUDENT"],
+    roles: ["PROFESSOR", "STUDENT", "ADMIN"],
   },
   {
     title: "Evaluaciones",
     href: "/evaluations",
     icon: Award,
-    roles: ["PROFESSOR", "STUDENT"],
+    roles: ["PROFESSOR", "STUDENT", "ADMIN"],
   },
   {
     title: "Esquemas y Datos",
     href: "/schemas",
     icon: Database,
-    roles: ["PROFESSOR"],
+    roles: ["PROFESSOR", "ADMIN"],
   },
   {
     title: "Reportes",
@@ -55,6 +73,18 @@ export const mainNavigation: NavItem[] = [
     href: "/admin/users",
     icon: Users,
     roles: ["ADMIN"],
+  },
+  {
+    title: "SQL Workspace",
+    href: "/workspace",
+    icon: Terminal,
+    roles: ["STUDENT"],
+  },
+  {
+    title: "Recomendaciones IA",
+    href: "/ai-recommendations",
+    icon: Sparkles,
+    roles: ["STUDENT", "PROFESSOR"],
   },
   {
     title: "Configuración",

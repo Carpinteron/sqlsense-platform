@@ -6,7 +6,9 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 import { useUsers } from "@/hooks/use-users";
+import { usePagination } from "@/hooks/use-pagination";
 import { User, UserRole } from "@/services/users.service";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,6 +42,9 @@ export function UsersTable() {
     });
   }, [users, search, roleFilter]);
 
+  const { page, totalPages, paginated, goToPage, resetPage, pageSize, total } =
+    usePagination(filtered, 10);
+
   if (isError) {
     return (
       <Card className="p-12 text-center">
@@ -61,10 +66,19 @@ export function UsersTable() {
             placeholder="Buscar por email o ID..."
             className="pl-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              resetPage();
+            }}
           />
         </div>
-        <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as RoleFilter)}>
+        <Select
+          value={roleFilter}
+          onValueChange={(v) => {
+            setRoleFilter(v as RoleFilter);
+            resetPage();
+          }}
+        >
           <SelectTrigger className="w-full sm:w-44">
             <SelectValue placeholder="Filtrar por rol" />
           </SelectTrigger>
@@ -103,7 +117,7 @@ export function UsersTable() {
                   <TableCell><Skeleton className="h-8 w-8 ml-auto rounded" /></TableCell>
                 </TableRow>
               ))
-            ) : filtered.length === 0 ? (
+            ) : paginated.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
                   {search || roleFilter !== "ALL"
@@ -112,7 +126,7 @@ export function UsersTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((user) => (
+              paginated.map((user) => (
                 <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
                   <TableCell className="font-mono text-xs text-muted-foreground">
                     #{user.id}
@@ -157,12 +171,13 @@ export function UsersTable() {
         </Table>
       </Card>
 
-      {/* Stats footer */}
-      {!isLoading && users && (
-        <p className="text-xs text-muted-foreground">
-          Mostrando {filtered.length} de {users.length} usuarios
-        </p>
-      )}
+      <DataTablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+      />
 
       {/* Modals */}
       <CreateUserModal open={createOpen} onOpenChange={setCreateOpen} />

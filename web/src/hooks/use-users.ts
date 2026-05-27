@@ -7,10 +7,11 @@ export const USER_QUERY_KEYS = {
   byId: (id: number) => ['users', id] as const,
 };
 
-export function useUsers() {
+export function useUsers(enabled = true) {
   return useQuery({
     queryKey: USER_QUERY_KEYS.all,
     queryFn: () => usersService.getAll(),
+    enabled,
   });
 }
 

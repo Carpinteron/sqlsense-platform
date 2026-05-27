@@ -8,14 +8,14 @@ import {
   Award,
   Database,
   ArrowRight,
-  TrendingUp,
   Shield,
   GraduationCap,
 } from "lucide-react";
-import { Cell, Pie, PieChart } from "recharts";
 
 import { useAuthStore } from "@/store/auth.store";
-import { useUsers } from "@/hooks/use-users";
+import { useCursos } from "@/hooks/use-cursos";
+import { useRetos } from "@/hooks/use-retos";
+import { AdminAnalytics } from "@/components/admin/admin-analytics";
 import {
   Card,
   CardContent,
@@ -26,7 +26,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 // ─── Role config ─────────────────────────────────────────────────────────────
 
@@ -95,206 +94,42 @@ function StatCard({
 // ─── Admin dashboard ─────────────────────────────────────────────────────────
 
 function AdminDashboard() {
-  const { data: users, isLoading } = useUsers();
-
-  const total = users?.length ?? 0;
-  const admins = users?.filter((u) => u.role === "ADMIN").length ?? 0;
-  const professors = users?.filter((u) => u.role === "PROFESSOR").length ?? 0;
-  const students = users?.filter((u) => u.role === "STUDENT").length ?? 0;
-
-  const chartData = [
-    { name: "Estudiantes", value: students, fill: "var(--color-chart-3)" },
-    { name: "Profesores", value: professors, fill: "var(--color-chart-1)" },
-    { name: "Admins", value: admins, fill: "var(--color-chart-5)" },
-  ].filter((d) => d.value > 0);
-
-  const chartConfig = {
-    Estudiantes: { label: "Estudiantes", color: "var(--color-chart-3)" },
-    Profesores: { label: "Profesores", color: "var(--color-chart-1)" },
-    Admins: { label: "Admins", color: "var(--color-chart-5)" },
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Total Usuarios"
-          value={total}
-          description="Usuarios registrados"
-          icon={Users}
-          iconClass="text-primary"
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Estudiantes"
-          value={students}
-          description={`${total ? Math.round((students / total) * 100) : 0}% del total`}
-          icon={GraduationCap}
-          iconClass="text-emerald-500"
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Profesores"
-          value={professors}
-          description={`${total ? Math.round((professors / total) * 100) : 0}% del total`}
-          icon={BookOpen}
-          iconClass="text-blue-500"
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Administradores"
-          value={admins}
-          description="Con acceso completo"
-          icon={Shield}
-          iconClass="text-rose-500"
-          isLoading={isLoading}
-        />
-      </div>
-
-      {/* Charts + Quick actions */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Pie chart */}
-        <Card className="border-border/50 bg-card/50 lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-base">Distribución de Roles</CardTitle>
-            <CardDescription>Usuarios por tipo de cuenta</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex items-center justify-center h-[180px]">
-                <Skeleton className="h-32 w-32 rounded-full" />
-              </div>
-            ) : total === 0 ? (
-              <div className="flex items-center justify-center h-[180px] text-muted-foreground text-sm">
-                Sin datos
-              </div>
-            ) : (
-              <ChartContainer config={chartConfig} className="h-[180px] w-full">
-                <PieChart>
-                  <Pie
-                    data={chartData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={75}
-                    strokeWidth={2}
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              </ChartContainer>
-            )}
-
-            {/* Legend */}
-            {!isLoading && total > 0 && (
-              <div className="mt-3 space-y-1.5">
-                {chartData.map((d) => (
-                  <div key={d.name} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full" style={{ background: d.fill }} />
-                      <span className="text-muted-foreground">{d.name}</span>
-                    </div>
-                    <span className="font-medium">{d.value}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Quick actions */}
-        <Card className="border-border/50 bg-card/50 lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">Acciones Rápidas</CardTitle>
-            <CardDescription>Gestiona la plataforma desde aquí</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
-            {[
-              {
-                href: "/admin/users",
-                icon: Users,
-                title: "Gestionar Usuarios",
-                desc: "Ver y administrar todos los usuarios",
-                color: "text-primary",
-              },
-              {
-                href: "/admin/courses",
-                icon: BookOpen,
-                title: "Gestionar Cursos",
-                desc: "Administrar cursos de la plataforma",
-                color: "text-blue-500",
-              },
-              {
-                href: "/reports",
-                icon: TrendingUp,
-                title: "Ver Reportes",
-                desc: "Analíticas y métricas globales",
-                color: "text-emerald-500",
-              },
-              {
-                href: "/schemas",
-                icon: Database,
-                title: "Esquemas SQL",
-                desc: "Generar esquemas con IA",
-                color: "text-violet-500",
-              },
-            ].map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                className="group flex items-start gap-3 rounded-xl border border-border/50 bg-muted/30 p-4 hover:border-primary/30 hover:bg-primary/5 transition-all"
-              >
-                <div className={`mt-0.5 ${action.color}`}>
-                  <action.icon className="h-5 w-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{action.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {action.desc}
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0 mt-0.5" />
-              </Link>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+  return <AdminAnalytics />;
 }
 
 // ─── Professor dashboard ─────────────────────────────────────────────────────
 
 function ProfessorDashboard() {
+  const { data: courses, isLoading: loadingCourses } = useCursos();
+  const { data: retos, isLoading: loadingRetos } = useRetos();
+  const published = retos?.filter((r) => r.status === "published").length ?? 0;
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           title="Cursos Activos"
-          value="—"
-          description="Disponible próximamente"
+          value={courses?.length ?? 0}
+          description="Tus cursos registrados"
           icon={BookOpen}
           iconClass="text-blue-500"
+          isLoading={loadingCourses}
         />
         <StatCard
           title="Retos Creados"
-          value="—"
-          description="Disponible próximamente"
+          value={retos?.length ?? 0}
+          description={`${published} publicados`}
           icon={Code2}
           iconClass="text-primary"
+          isLoading={loadingRetos}
         />
         <StatCard
-          title="Estudiantes"
-          value="—"
-          description="En tus cursos"
+          title="Borradores"
+          value={retos?.filter((r) => r.status === "draft").length ?? 0}
+          description="Retos pendientes de publicar"
           icon={GraduationCap}
           iconClass="text-emerald-500"
+          isLoading={loadingRetos}
         />
       </div>
 
@@ -326,15 +161,23 @@ function ProfessorDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-card/50 border-dashed">
+        <Card className="border-border/50 bg-card/50">
           <CardHeader>
-            <CardTitle className="text-base text-muted-foreground">
-              Actividad Reciente
-            </CardTitle>
-            <CardDescription>Próximamente</CardDescription>
+            <CardTitle className="text-base">Retos recientes</CardTitle>
           </CardHeader>
-          <CardContent className="flex h-32 items-center justify-center text-muted-foreground/50 text-sm">
-            [ Disponible con el módulo de evaluaciones ]
+          <CardContent className="space-y-2">
+            {loadingRetos ? (
+              <Skeleton className="h-20" />
+            ) : !retos?.length ? (
+              <p className="text-sm text-muted-foreground">Sin retos aún.</p>
+            ) : (
+              retos.slice(0, 4).map((r) => (
+                <div key={r.id} className="flex justify-between text-sm border-b border-border/30 pb-2 last:border-0">
+                  <span className="font-medium truncate">{r.title}</span>
+                  <span className="text-xs text-muted-foreground">{r.status}</span>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
