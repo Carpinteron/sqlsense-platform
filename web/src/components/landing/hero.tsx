@@ -1,45 +1,85 @@
 import Link from "next/link";
-import { ArrowRight, Code2, Sparkles } from "lucide-react";
+import { ArrowRight, Code2, Sparkles, Play, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+const highlights = [
+  "Feedback en tiempo real",
+  "Sandbox Docker aislado",
+  "Recomendaciones IA",
+];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-background pt-24 pb-32 md:pt-32 md:pb-40">
-      {/* Background Gradients inspired by modern SaaS */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-20 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-indigo-500 to-purple-500 blur-[100px] rounded-full mix-blend-screen" />
+    <section className="relative overflow-hidden bg-background pt-24 pb-32 md:pt-36 md:pb-48">
+      {/* Radial gradient glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/3 h-[600px] w-[900px] rounded-full bg-primary/15 blur-[120px]" />
+        <div className="absolute left-1/4 top-1/2 -translate-y-1/2 h-[300px] w-[300px] rounded-full bg-indigo-500/10 blur-[80px]" />
+        <div className="absolute right-1/4 top-1/3 h-[250px] w-[250px] rounded-full bg-violet-500/10 blur-[80px]" />
       </div>
 
+      {/* Grid pattern overlay */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, oklch(0.94 0.008 265 / 0.04) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.94 0.008 265 / 0.04) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+        }}
+      />
+
       <div className="container relative z-10 mx-auto max-w-5xl px-4 md:px-6 text-center">
-        <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-8 shadow-sm backdrop-blur-sm">
-          <Sparkles className="mr-2 h-4 w-4" />
-          <span>Evaluador SQL impulsado por Inteligencia Artificial</span>
+        {/* Pill badge */}
+        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary shadow-sm backdrop-blur-sm">
+          <Sparkles className="h-4 w-4" />
+          Evaluador SQL impulsado por Inteligencia Artificial
         </div>
 
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground mb-6 leading-tight">
-          Aprende y Optimiza <br className="hidden md:block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">
-            tu código SQL
+        {/* Headline */}
+        <h1 className="mx-auto max-w-4xl text-5xl font-extrabold tracking-tight text-foreground md:text-6xl lg:text-7xl mb-6 leading-[1.1]">
+          Aprende, practica y
+          <br className="hidden md:block" />
+          <span className="bg-gradient-to-r from-primary via-indigo-400 to-violet-500 bg-clip-text text-transparent">
+            {" "}domina el SQL
           </span>
         </h1>
 
-        <p className="mx-auto max-w-2xl text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed">
-          Plataforma educativa para evaluar consultas SQL automáticamente. Obtén feedback en tiempo real, recomendaciones de índices y optimización de rendimiento con nuestra IA.
+        {/* Sub-headline */}
+        <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl mb-10 leading-relaxed">
+          Plataforma educativa que evalúa consultas SQL automáticamente, otorga
+          feedback IA instantáneo y genera entornos de base de datos completos
+          para profesores y estudiantes.
         </p>
 
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <Link href="/login">
-            <Button size="lg" className="h-12 px-8 text-base shadow-lg shadow-primary/20">
-              Prueba el Editor
+        {/* CTA buttons */}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-14">
+          <Button asChild size="lg" className="h-12 px-8 text-base shadow-lg shadow-primary/25">
+            <Link href="/auth/register">
+              Empieza gratis
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-          <Link href="#features">
-            <Button size="lg" variant="outline" className="h-12 px-8 text-base bg-background/50 backdrop-blur-sm">
-              <Code2 className="mr-2 h-4 w-4" />
-              Ver Características
-            </Button>
-          </Link>
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base">
+            <Link href="/auth/login">
+              <Play className="mr-2 h-4 w-4" />
+              Ver demo
+            </Link>
+          </Button>
+        </div>
+
+        {/* Highlights */}
+        <div className="flex flex-wrap justify-center items-center gap-6">
+          {highlights.map((h) => (
+            <div key={h} className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CheckCircle className="h-4 w-4 text-primary/70 shrink-0" />
+              {h}
+            </div>
+          ))}
         </div>
       </div>
     </section>
