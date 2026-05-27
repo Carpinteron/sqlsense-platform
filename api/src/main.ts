@@ -52,6 +52,8 @@ async function bootstrap() {
     .addTag('Users', 'Gestión de usuarios y roles')
     .addTag('Cursos', 'CRUD de cursos (PROFESSOR/ADMIN)')
     .addTag('Retos', 'CRUD de retos SQL')
+    .addTag('Evaluations', 'CRUD de evaluaciones SQL')
+    .addTag('Analytics', 'Métricas globales de la plataforma')
     .addTag('Schemas', 'Generación de schemas con IA')
     .addTag('Mock Data', 'Generación de mock data con IA')
     .build();

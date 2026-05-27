@@ -130,6 +130,7 @@ model evaluations {
   end_date              DateTime?               @db.Timestamp(6)
   duration_minutes      Int?
   max_attempts          Int?
+  results_visibility    String?                 @default("after_deadline") @db.VarChar(20)
   course_id             String?                 @db.Uuid
   created_at            DateTime?               @default(now()) @db.Timestamp(6)
   evaluation_attempts   evaluation_attempts[]
