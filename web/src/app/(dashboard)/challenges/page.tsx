@@ -1,22 +1,27 @@
-import { Code2 } from "lucide-react";
-import { EmptyState } from "@/components/ui/empty-state";
+"use client";
+
+import { ProtectedRoute } from "@/components/auth/protected-route";
+import { PageHeader } from "@/components/shared/page-header";
+import { ChallengesManager } from "@/components/challenges/challenges-manager";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function ChallengesPage() {
+  const role = useAuthStore((s) => s.user?.role);
+  const readOnly = role === "STUDENT";
+
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Retos SQL</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Practica con retos SQL diseñados para fortalecer tus habilidades.
-        </p>
-      </div>
-      <div className="rounded-2xl border border-border/50 bg-card/50">
-        <EmptyState
-          icon={Code2}
-          title="Próximamente"
-          description="El módulo de retos SQL estará disponible pronto. Podrás resolver desafíos en entornos aislados con feedback en tiempo real."
+    <ProtectedRoute allowedRoles={["PROFESSOR", "STUDENT", "ADMIN"]}>
+      <div className="flex flex-col gap-6">
+        <PageHeader
+          title="Retos SQL"
+          description={
+            readOnly
+              ? "Retos publicados disponibles para practicar."
+              : "Crea, edita y publica retos con dificultad, tags y límites de tiempo."
+          }
         />
+        <ChallengesManager readOnly={readOnly} />
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
