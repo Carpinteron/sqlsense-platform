@@ -11,6 +11,7 @@ export interface IAIAssistant {
     userQuery: string,
     expectedQuery: string,
     runnerResult: RunnerResponse,
+    schema: string,
   ): Promise<EvaluationResult>;
 
   getOptimizationTips(

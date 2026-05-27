@@ -23,7 +23,7 @@ export class EvaluateQueryUseCase {
   ) {}
 
   async execute(dto: EvaluateQueryDto): Promise<EvaluationGrade> {
-    const semanticResult = await this.semantics.analyze(dto.userQuery, dto.expectedQuery);
+    const semanticResult = await this.semantics.analyze(dto.userQuery, dto.expectedQuery, dto.schema);
 
     let performanceScore = 100;
     let requiresOptimization = false;

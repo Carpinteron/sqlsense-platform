@@ -13,10 +13,12 @@ export class AiEvaluationAdapter implements IAIAssistant {
     userQuery: string,
     expectedQuery: string,
     runnerResult: RunnerResponse,
+    schema: string,
   ): Promise<EvaluationResult> {
     const result = await this.evaluateQuery.execute({
       userQuery,
       expectedQuery,
+      schema,
       runnerResult: {
         executionTimeMs: runnerResult.executionTimeMs,
         explainAnalyze: runnerResult.explainAnalyze,

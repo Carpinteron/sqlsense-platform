@@ -28,8 +28,8 @@ export class AiQuerySemanticsAdapter implements IQuerySemanticsPort {
     private readonly mapper: SemanticResponseMapper,
   ) {}
 
-  async analyze(userQuery: string, expectedQuery: string): Promise<SemanticResult> {
-    const userPrompt = `User query:\n${userQuery}\n\nExpected query:\n${expectedQuery}`;
+  async analyze(userQuery: string, expectedQuery: string, schema: string): Promise<SemanticResult> {
+    const userPrompt = `Database schema:\n${schema}\n\nUser query:\n${userQuery}\n\nExpected query:\n${expectedQuery}`;
     const raw = await this.ai.complete(SYSTEM_PROMPT, userPrompt);
     return this.mapper.parse(raw);
   }
