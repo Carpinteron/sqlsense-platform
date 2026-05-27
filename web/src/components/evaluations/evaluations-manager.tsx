@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Calendar, Trash2 } from "lucide-react";
+import { Plus, Calendar, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   useEvaluations,
   useCreateEvaluation,
+  useUpdateEvaluation,
   useDeleteEvaluation,
 } from "@/hooks/use-evaluations";
 import { useCursos } from "@/hooks/use-cursos";
@@ -34,8 +35,10 @@ export function EvaluationsManager() {
   const { data: courses } = useCursos();
   const { data: retos } = useRetos();
   const create = useCreateEvaluation();
+  const update = useUpdateEvaluation();
   const del = useDeleteEvaluation();
   const [open, setOpen] = useState(false);
+  const [editEvaluation, setEditEvaluation] = useState<Evaluation | null>(null);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -47,6 +50,42 @@ export function EvaluationsManager() {
     maxAttempts: 3,
     resultsVisibility: "after_deadline" as EvaluationVisibility,
   });
+
+  const resetForm = () => {
+    setForm({
+      title: "",
+      description: "",
+      courseId: "",
+      challengeIds: [],
+      startDate: "",
+      endDate: "",
+      durationMinutes: 60,
+      maxAttempts: 3,
+      resultsVisibility: "after_deadline",
+    });
+  };
+
+  const openCreateDialog = () => {
+    setEditEvaluation(null);
+    resetForm();
+    setOpen(true);
+  };
+
+  const openEditDialog = (evaluation: Evaluation) => {
+    setEditEvaluation(evaluation);
+    setForm({
+      title: evaluation.title,
+      description: evaluation.description ?? "",
+      courseId: evaluation.courseId,
+      challengeIds: evaluation.challengeIds,
+      startDate: evaluation.startDate,
+      endDate: evaluation.endDate,
+      durationMinutes: evaluation.durationMinutes,
+      maxAttempts: evaluation.maxAttempts,
+      resultsVisibility: evaluation.resultsVisibility,
+    });
+    setOpen(true);
+  };
 
   const courseRetos = useMemo(
     () => retos?.filter((r) => r.courseId === form.courseId) ?? [],
@@ -62,20 +101,15 @@ export function EvaluationsManager() {
     }));
   };
 
-  const handleCreate = async () => {
-    await create.mutateAsync(form);
+  const handleSubmit = async () => {
+    if (editEvaluation) {
+      await update.mutateAsync({ id: editEvaluation.id, payload: form });
+    } else {
+      await create.mutateAsync(form);
+    }
     setOpen(false);
-    setForm({
-      title: "",
-      description: "",
-      courseId: "",
-      challengeIds: [],
-      startDate: "",
-      endDate: "",
-      durationMinutes: 60,
-      maxAttempts: 3,
-      resultsVisibility: "after_deadline",
-    });
+    setEditEvaluation(null);
+    resetForm();
   };
 
   const visibilityLabels: Record<EvaluationVisibility, string> = {
@@ -89,11 +123,11 @@ export function EvaluationsManager() {
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
-        Las evaluaciones se guardan localmente hasta que el módulo REST esté disponible en el backend.
+        Las evaluaciones se guardan localmente en este navegador mientras no exista el módulo REST en el backend.
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={() => setOpen(true)}>
+        <Button onClick={openCreateDialog}>
           <Plus className="mr-2 h-4 w-4" /> Nueva evaluación
         </Button>
       </div>
@@ -118,6 +152,14 @@ export function EvaluationsManager() {
                     {courses?.find((c) => c.id === ev.courseId)?.name ?? ev.courseId}
                   </p>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground"
+                  onClick={() => openEditDialog(ev)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -151,7 +193,7 @@ export function EvaluationsManager() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Nueva evaluación</DialogTitle>
+            <DialogTitle>{editEvaluation ? "Editar evaluación" : "Nueva evaluación"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -230,8 +272,11 @@ export function EvaluationsManager() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={handleCreate} disabled={!form.title || !form.courseId || create.isPending}>
-              Crear
+            <Button
+              onClick={handleSubmit}
+              disabled={!form.title || !form.courseId || create.isPending || update.isPending}
+            >
+              {editEvaluation ? "Guardar cambios" : "Crear"}
             </Button>
           </DialogFooter>
         </DialogContent>
