@@ -1,26 +1,27 @@
 import { Injectable, Inject } from '@nestjs/common';
-import type { ICursoRepository } from '../../../cursos/domain/repositories/curso.repository';
-import type { IRetoRepository } from '../../../challenges/domain/repositories/reto.repository';
+import type { IChallengeRepository } from '../../../challenges/domain/repositories/challege.repository';
+import type { ICourseRepository } from '../../../courses/domain/repositories/course.repository';
+
 import type { ISubmissionRepository } from '../../domain/repositories/submission.repository';
 import { CourseReportResponseDto, StudentScoreDto, ChallengeAverageDto } from '../dtos/course-report-response.dto';
 
 @Injectable()
 export class GetCourseReportUseCase {
   constructor(
-    @Inject('CURSO_REPOSITORY')
-    private readonly _cursoRepository: ICursoRepository,
-    @Inject('RETO_REPOSITORY')
-    private readonly _retoRepository: IRetoRepository,
+    @Inject('CHALLENGE_REPOSITORY')
+    private readonly _challengeRepository: IChallengeRepository,
+    @Inject('COURSE_REPOSITORY')
+    private readonly _courseRepository: ICourseRepository,
     @Inject('ISubmissionRepository')
     private readonly _submissionRepository: ISubmissionRepository,
   ) {}
 
   async execute(courseId: string): Promise<CourseReportResponseDto> {
     // 1. Estudiantes inscritos
-    const students = await this._cursoRepository.findStudentsByCourseId(courseId);
+    const students = await this._courseRepository.findStudentsByCourseId(courseId);
 
     // 2. Retos del curso
-    const challenges = await this._retoRepository.findAll({ courseId });
+    const challenges = await this._challengeRepository.findAll({ courseId });
 
     if (!challenges.length) {
       return {

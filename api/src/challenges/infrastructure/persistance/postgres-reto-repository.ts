@@ -1,53 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../shared/infrastructure/prisma/prisma.service';
-import type { Reto } from '../../domain/entities/reto.entity';
-import type { IRetoRepository } from '../../domain/repositories/reto.repository';
+import type { Challenge } from '../../domain/entities/challege.entity';
+import type { IChallengeRepository } from '../../domain/repositories/challege.repository';
 
 type ChallengeRow = Prisma.challengesGetPayload<{}>;
 
 @Injectable()
-export class RetoRepository implements IRetoRepository {
+export class ChallengeRepository implements IChallengeRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(reto: Omit<Reto, 'id' | 'created_at'>): Promise<Reto> {
+  async create(challenge: Omit<Challenge, 'id' | 'created_at'>): Promise<Challenge> {
     const createdReto = await this.prismaService.challenges.create({
       data: {
-        title: reto.title,
-        description: reto.description,
-        difficulty: reto.difficulty ?? null,
-        tags: reto.tags ?? [],
-        database_engine: reto.databaseEngine ?? 'PostgreSQL',
-        time_limit: reto.timeLimit ?? null,
-        status: reto.status ?? 'draft',
-        course_id: reto.courseId ?? null,
-        created_by: reto.createdBy ?? null,
-        schema_sql: reto.schemaSql ?? null,
-        seed_data_sql: reto.seedDataSql ?? null,
-        expected_result: reto.expectedResult ?? Prisma.JsonNull,
+        title: challenge.title,
+        description: challenge.description,
+        difficulty: challenge.difficulty ?? null,
+        tags: challenge.tags ?? [],
+        database_engine: challenge.databaseEngine ?? 'PostgreSQL',
+        time_limit: challenge.timeLimit ?? null,
+        status: challenge.status ?? 'draft',
+        course_id: challenge.courseId ?? null,
+        created_by: challenge.createdBy ?? null,
+        schema_sql: challenge.schemaSql ?? null,
+        seed_data_sql: challenge.seedDataSql ?? null,
+        expected_result: challenge.expectedResult ?? Prisma.JsonNull,
       },
     });
 
     return this.toDomain(createdReto);
   }
 
-  async findById(id: string): Promise<Reto | null> {
-    const reto = await this.prismaService.challenges.findUnique({
+  async findById(id: string): Promise<Challenge | null> {
+    const challenge = await this.prismaService.challenges.findUnique({
       where: { id },
     });
 
-    return reto ? this.toDomain(reto) : null;
+    return challenge ? this.toDomain(challenge) : null;
   }
 
-  async findByTitle(title: string): Promise<Reto | null> {
-    const reto = await this.prismaService.challenges.findFirst({
+  async findByTitle(title: string): Promise<Challenge | null> {
+    const challenge  = await this.prismaService.challenges.findFirst({
       where: { title },
     });
 
-    return reto ? this.toDomain(reto) : null;
+    return challenge ? this.toDomain(challenge) : null;
   }
 
-  async findAll(filter?: { courseId?: string; difficulty?: 'Easy' | 'Medium' | 'Hard' }): Promise<Reto[]> {
+  async findAll(filter?: { courseId?: string; difficulty?: 'Easy' | 'Medium' | 'Hard' }): Promise<Challenge[]> {
     const where: any = {};
     if (filter?.courseId !== undefined) {
       where.course_id = filter.courseId;
@@ -56,17 +56,17 @@ export class RetoRepository implements IRetoRepository {
       where.difficulty = filter.difficulty;
     }
 
-    const retos = await this.prismaService.challenges.findMany({
+    const challenges = await this.prismaService.challenges.findMany({
       where,
       orderBy: {
         created_at: 'desc',
       },
     });
 
-    return retos.map((reto) => this.toDomain(reto));
+    return challenges.map((challenge) => this.toDomain(challenge));
   }
 
-  async update(id: string, updates: Partial<Omit<Reto, 'id' | 'created_at'>>): Promise<Reto> {
+  async update(id: string, updates: Partial<Omit<Challenge, 'id' | 'created_at'>>): Promise<Challenge> {
     const updatedReto = await this.prismaService.challenges.update({
       where: { id },
       data: {
@@ -92,22 +92,22 @@ export class RetoRepository implements IRetoRepository {
     });
   }
 
-  private toDomain(reto: ChallengeRow): Reto {
+  private toDomain(challenge: ChallengeRow): Challenge {
     return {
-      id: reto.id,
-      title: reto.title,
-      description: reto.description,
-      difficulty: (reto.difficulty as Reto['difficulty']) ?? undefined,
-      tags: reto.tags ?? undefined,
-      databaseEngine: reto.database_engine ?? undefined,
-      timeLimit: reto.time_limit ?? undefined,
-      status: (reto.status as Reto['status']) ?? undefined,
-      courseId: reto.course_id ?? undefined,
-      createdBy: reto.created_by ?? undefined,
-      schemaSql: reto.schema_sql ?? undefined,
-      seedDataSql: reto.seed_data_sql ?? undefined,
-      expectedResult: (reto.expected_result as object | null) ?? undefined,
-      createdAt: reto.created_at ?? undefined,
+      id: challenge.id,
+      title: challenge.title,
+      description: challenge.description,
+      difficulty: (challenge.difficulty as Challenge['difficulty']) ?? undefined,
+      tags: challenge.tags ?? undefined,
+      databaseEngine: challenge.database_engine ?? undefined,
+      timeLimit: challenge.time_limit ?? undefined,
+      status: (challenge.status as Challenge['status']) ?? undefined,
+      courseId: challenge.course_id ?? undefined,
+      createdBy: challenge.created_by ?? undefined,
+      schemaSql: challenge.schema_sql ?? undefined,
+      seedDataSql: challenge.seed_data_sql ?? undefined,
+      expectedResult: (challenge.expected_result as object | null) ?? undefined,
+      createdAt: challenge.created_at ?? undefined,
     };
   }
 }

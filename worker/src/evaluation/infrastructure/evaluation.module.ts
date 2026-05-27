@@ -3,13 +3,11 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { SubmissionProcessor } from './processors/submission.processor';
 import { EvaluateSubmissionUseCase } from '../application/use-cases/evaluate-submission.use-case';
-import { ISubmissionRepository } from '../domain/interfaces/submission-repository.interface';
-import { ISqlExecutor } from '../domain/interfaces/sql-executor.interface';
-import { IAIAssistant } from '../domain/interfaces/ai-assistant.interface';
 import { SqlExecutorPostgres } from './external/sql-executor.postgres';
-import { AIAssistantStub } from './external/ai-assistant.stub';
 import { PrismaSubmissionRepository } from './persistence/prisma-submission.repository';
-import { PrismaModule } from '../../shared/infrastructure/prisma/pisma.module'; 
+import { PrismaModule } from '../../shared/infrastructure/prisma/pisma.module';
+import { AiEvaluationModule } from '../../ai-evaluation/ai-evaluation.module';
+import { AiEvaluationAdapter } from '../../ai-evaluation/infrastructure/ai-evaluation.adapter';
 
 @Module({
   imports: [
@@ -26,13 +24,14 @@ import { PrismaModule } from '../../shared/infrastructure/prisma/pisma.module';
       name: 'submission-queue',
     }),
     PrismaModule,
-],
-    providers: [
+    AiEvaluationModule,
+  ],
+  providers: [
     SubmissionProcessor,
     EvaluateSubmissionUseCase,
     {
       provide: 'ISubmissionRepository',
-      useClass: PrismaSubmissionRepository, 
+      useClass: PrismaSubmissionRepository,
     },
     {
       provide: 'ISqlExecutor',
@@ -40,7 +39,7 @@ import { PrismaModule } from '../../shared/infrastructure/prisma/pisma.module';
     },
     {
       provide: 'IAIAssistant',
-      useClass: AIAssistantStub,
+      useExisting: AiEvaluationAdapter,
     },
   ],
 })
