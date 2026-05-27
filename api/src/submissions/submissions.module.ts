@@ -12,9 +12,17 @@ import { GetChallengeReportUseCase } from './application/use-cases/get-challenge
 import { SubmissionsController } from './infrastructure/controllers/submissions.controller';
 import { PostgresSubmissionRepository } from './infrastructure/repositories/postgres-submission.repository';
 
+import { GetStudentReportUseCase } from './application/use-cases/get-student-report.use-case';
+
+import { CursosModule } from '../cursos/cursos.module';
+import { RetoModule } from '../challenges/reto.module';
+import { GetCourseReportUseCase } from './application/use-cases/get-course-report.use-case';
+
 @Module({
   imports: [
     PrismaModule,
+    CursosModule,  
+    RetoModule,
 
     BullModule.forRootAsync({
       inject: [ConfigService], 
@@ -39,7 +47,8 @@ import { PostgresSubmissionRepository } from './infrastructure/repositories/post
     GetSubmissionsByStudentUseCase,
     GetSubmissionsByChallengeUseCase,
     GetChallengeReportUseCase,
-    
+    GetStudentReportUseCase,
+    GetCourseReportUseCase,
     {
       provide: 'ISubmissionRepository',
       useClass: PostgresSubmissionRepository, 
