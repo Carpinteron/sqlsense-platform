@@ -2,7 +2,13 @@ import { apiClient } from '@/lib/axios';
 
 export interface LoginRequest {
   email: string;
-  password?: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  role: 'PROFESSOR' | 'STUDENT';
 }
 
 export interface AuthTokens {
@@ -25,8 +31,20 @@ export const authService = {
     return response.data;
   },
 
+  /**
+   * Register uses the POST /users endpoint (public, no auth required).
+   * The backend CreateUserDto accepts { email, password, role }.
+   * Note: /auth/register does NOT exist in the backend.
+   */
+  async register(data: RegisterRequest): Promise<any> {
+    const response = await apiClient.post('/users', data);
+    return response.data;
+  },
+
   async refresh(refreshToken: string): Promise<AuthTokens> {
-    const response = await apiClient.post<AuthTokens>('/auth/refresh', { refresh_token: refreshToken });
+    const response = await apiClient.post<AuthTokens>('/auth/refresh', {
+      refresh_token: refreshToken,
+    });
     return response.data;
   },
 
@@ -37,5 +55,5 @@ export const authService = {
   async getProfile(): Promise<AuthProfile> {
     const response = await apiClient.get<AuthProfile>('/auth/profile');
     return response.data;
-  }
+  },
 };
