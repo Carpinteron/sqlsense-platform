@@ -11,8 +11,19 @@ import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
 import { GenerateExpectedQueryUseCase } from '../../application/use-cases/generate-expected-query.use-case';
 import { GenerateExpectedQueryDto } from '../../application/dtos/generate-expected-query.dto';
 import { ExpectedQueryParseError } from '../../domain/errors/expected-query-parse.error';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
+} from '@nestjs/swagger';
 
 @Controller('expected-query')
+@ApiTags('Expected Query')
+@ApiBearerAuth('JWT')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
 export class ExpectedQueryController {
@@ -21,6 +32,12 @@ export class ExpectedQueryController {
   ) {}
 
   @Post('generate')
+  @ApiOperation({ summary: 'Generar consulta esperada', description: 'Genera la consulta SQL esperada a partir de un prompt y el esquema proporcionado.' })
+  @ApiBody({ type: GenerateExpectedQueryDto })
+  @ApiResponse({ status: 200, description: 'Consulta esperada generada correctamente' })
+  @ApiResponse({ status: 400, description: 'Solicitud inválida' })
+  @ApiUnauthorizedResponse({ description: 'JWT inválido o ausente' })
+  @ApiForbiddenResponse({ description: 'Rol insuficiente' })
   async generate(@Body() body: GenerateExpectedQueryDto) {
     if (!body?.prompt?.trim()) {
       throw new BadRequestException('prompt is required');
