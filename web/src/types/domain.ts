@@ -63,8 +63,6 @@ export interface FieldSpec {
   from?: string;
   to?: string;
   values?: string[];
-  nullPercent?: number;
-  edgeCases?: string[];
 }
 
 export interface MockDataJob {

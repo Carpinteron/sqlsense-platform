@@ -10,10 +10,11 @@ export const EVALUATION_QUERY_KEYS = {
   byCourse: (courseId: string) => ['evaluations', 'course', courseId] as const,
 };
 
-export function useEvaluations() {
+export function useEvaluations(enabled = true) {
   return useQuery({
     queryKey: EVALUATION_QUERY_KEYS.all,
     queryFn: () => evaluationsService.getAll(),
+    enabled,
   });
 }
 
