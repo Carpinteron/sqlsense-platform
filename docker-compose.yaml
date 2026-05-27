@@ -2,6 +2,8 @@ services:
   redis:
     image: redis:alpine
     container_name: sql_sense_redis
+    ports:
+    - "6379:6379" 
     networks:
       - sql_sense_network
   
