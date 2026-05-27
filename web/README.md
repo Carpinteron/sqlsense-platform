@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SQLSense Web
 
-## Getting Started
+Frontend Next.js para SQLSense Platform.
 
-First, run the development server:
+## Desarrollo local
+
+Instala dependencias desde `web/` y arranca el servidor de desarrollo:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Dependencias del backend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+El frontend consume la API en `http://localhost:3001` cuando el backend corre con Docker.
 
-## Learn More
+Si cambias la URL de la API, ajusta `NEXT_PUBLIC_API_URL` en `web/.env`.
 
-To learn more about Next.js, take a look at the following resources:
+## Rutas principales
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/auth/login`
+- `/auth/register`
+- `/dashboard`
+- `/courses`
+- `/challenges`
+- `/evaluations`
+- `/reports`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notas
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Ejecuta `npm run dev` dentro de `web/`, no desde la raíz del repo.
+- El panel de admin consulta `GET /analytics/admin-summary`.
+- Las vistas de evaluaciones usan `GET /evaluations` y `GET /evaluations/course/:courseId`.
+- Si los charts muestran warnings de tamaño, revisa que el backend esté corriendo y que el usuario tenga sesión válida.
