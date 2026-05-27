@@ -139,3 +139,16 @@
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
 }
+
+/* ─── Motion & accessibility ─────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .transition-smooth {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+      opacity 0.2s ease, transform 0.2s ease;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
