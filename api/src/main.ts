@@ -2,6 +2,10 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+// DTOs registrados explícitamente para asegurar que Swagger incluya sus propiedades
+import { CreateSubmissionDto } from './submissions/application/dtos/create-submission.dto';
+import { SubmissionCreatedResponseDto } from './submissions/application/dtos/submission-created-response.dto';
+import { GenerateExpectedQueryDto } from './expected-query/application/dtos/generate-expected-query.dto';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -52,7 +56,9 @@ async function bootstrap() {
     .addTag('Mock Data', 'Generación de mock data con IA')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    extraModels: [CreateSubmissionDto, SubmissionCreatedResponseDto, GenerateExpectedQueryDto],
+  });
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: { persistAuthorization: true },
   });
