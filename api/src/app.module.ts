@@ -7,6 +7,8 @@ import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { SchemasModule } from './schemas/schemas.module';
 import { ChallengeModule } from './challenges/Challenge.module';
 import { MockDataModule } from './mock-data/mock-data.module';
+import { EvaluationsModule } from './evaluations/evaluations.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { UsersModule } from './users/users.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { ExpectedQueryModule } from './expected-query/expected-query.module';
@@ -25,6 +27,8 @@ import { ExpectedQueryModule } from './expected-query/expected-query.module';
     SchemasModule,
     ChallengeModule,
     MockDataModule,
+    EvaluationsModule,
+    AnalyticsModule,
     UsersModule,
     SubmissionsModule,
     ExpectedQueryModule,

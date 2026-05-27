@@ -43,6 +43,33 @@ Eso levanta:
 - API en `localhost:3001`
 - Worker
 
+## Frontend
+
+El frontend vive en `web/` como una app Next.js independiente. No hace falta mezclarlo con el backend para mantener la arquitectura limpia.
+
+Para levantarlo en desarrollo:
+
+```bash
+cd web
+npm run dev -- --webpack
+```
+
+El frontend queda en `http://localhost:3000`.
+
+Rutas canónicas del frontend:
+
+- Login: `http://localhost:3000/auth/login`
+- Registro: `http://localhost:3000/auth/register`
+
+Notas:
+
+- En Windows, si `3000` ya está ocupado, Next puede usar otro puerto disponible.
+- El frontend consume la API del backend por HTTP en `http://localhost:3001`.
+- El login del frontend usa `POST /auth/login` contra ese backend; Swagger sigue disponible en `/api`.
+- La API habilita CORS para permitir el origen del frontend en `http://localhost:3000`.
+- Si quieres abrir el formulario de acceso directamente, usa `/auth/login`.
+- Si ves advertencias de Git sobre `LF`/`CRLF`, son solo del formato de fin de línea en Windows y no rompen el proyecto.
+
 ## Documentación API con Swagger UI
 
 La API está documentada automáticamente con **Swagger UI**, una interfaz interactiva para probar endpoints sin necesidad de curl o Postman.
@@ -53,6 +80,8 @@ Una vez que la API esté corriendo (con Docker o `npm run start:dev`):
 
 - **Docker**: `http://localhost:3001/api`
 - **npm run start:dev**: `http://localhost:3000/api`
+
+Swagger está en `/api`, pero el frontend se conecta al backend real en `http://localhost:3001`.
 
 ### Flujo de autorización paso a paso
 
