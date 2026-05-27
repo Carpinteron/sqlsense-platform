@@ -74,9 +74,16 @@ export class EvaluateSubmissionUseCase {
         return;
       }
 
+      const expectedSql =
+        typeof challengeData.expected_result === 'object' && challengeData.expected_result !== null
+          ? (challengeData.expected_result as { expected_sql: string }).expected_sql
+          : String(challengeData.expected_result ?? '');
+
       const aiResult = await this._aiAssistant.evaluate(
         evaluation.query,
-        challengeData.expected_result,
+        expectedSql,
+        runnerResult,
+        challengeData.schema_sql,
       );
 
       let tips = '';

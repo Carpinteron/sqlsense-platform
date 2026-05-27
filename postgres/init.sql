@@ -209,6 +209,7 @@ VALUES (
     'ADMIN'
 );
 
+
 BEGIN;
 
 -- Limpieza previa por si ya existen para evitar errores de duplicados
@@ -237,7 +238,8 @@ VALUES ('aabbccdd-1111-2222-3333-444455556666', 99);
 -- 5. Insertar Desafío (ID exacto que usaremos en Postman)
 INSERT INTO "challenge"."challenges" (
     "id", "title", "description", "difficulty", "tags", 
-    "database_engine", "time_limit", "status", "course_id", "created_by"
+    "database_engine", "time_limit", "status", "course_id", "created_by",
+    "schema_sql", "seed_data_sql", "expected_result"
 )
 VALUES (
     'f47ac10b-58cc-4372-a567-0e02b2c3d479',
@@ -249,7 +251,23 @@ VALUES (
     3000,
     'published'::"challenge"."status_enum",
     'aabbccdd-1111-2222-3333-444455556666',
-    88
+    88,
+    'CREATE TABLE users ( id INT PRIMARY KEY, email VARCHAR(255), username VARCHAR(100), password_hash VARCHAR(255), created_at TIMESTAMP );',
+    
+    'INSERT INTO users (id, email, username, password_hash, created_at) VALUES
+(10, ''alice.johnson@example.com'', ''alice_johnson'', ''$2a$10$rKp8xMn9vQ7wLz5rT3sY1uE6oI4hG2fJ9dX8cV0bN7mL5kP3qR1'', ''2021-03-15''),
+(45, ''bob.smith@domain.net'', ''bob_smith_99'', ''$2a$10$sT7uI9oL3xR5nM8vQ1wE6yH4jK2fD9cX7bV5mN3lP1qG8rJ4tY'', ''2022-07-22''),
+(128, ''charlie.wong@company.org'', ''charlie_w'', ''$2a$10$tY5rJ9xL3oM8nV1wQ6sE4uH7jK9fD2cX5bV8mN1lP3qG6rJ7tY'', ''2020-11-08''),
+(256, ''diana.lee@startup.io'', ''diana_lee_dev'', ''$2a$10$vQ3rJ8xL5oM9nV2wQ7sE4uH8jK1fD6cX4bV9mN2lP5qG9rJ8tY'', ''2023-05-19''),
+(512, ''edward.chen@global.com'', ''edward_chen'', ''$2a$10$wL4rJ7xM3oN8vQ9sE2uH5jK6fD1cX8bV4mN9lP2qG5rJ1tY'', ''2024-09-03''),
+(75, ''fiona.martinez@tech.co'', ''fiona_m'', ''$2a$10$xM8vQ3rJ9sE5uH2jK7fD4cX1bV6mN3lP9qG8rJ2tY5wL'', ''2025-01-28''),
+(903, ''george.brown@business.net'', ''george_brown_2024'', ''$2a$10$yH5jK8vQ2rJ9sE6uH3fD7cX4bV1mN8lP5qG2rJ9tY3wL'', ''2021-06-12''),
+(142, ''hannah.wood@design.studio'', ''hannah_wood_art'', ''$2a$10$zJ9sE3vQ7rJ2uH8fD5cX1bV4mN6lP9qG3rJ7tY2wL5'', ''2023-11-25''),
+(67, ''ian.harris@finance.group'', ''ian_h_finance'', ''$2a$10$sE8vQ2rJ9uH3fD7cX5bV1mN4lP6qG9rJ2tY8wL3zJ'', ''2020-04-17''),
+(891, ''julia.clark@cloud.services'', ''julia_clark_cloud'', ''$2a$10$vQ3rJ9uH5fD8cX2bV6mN4lP7qG1rJ9tY3wL5zJ8sE'', ''2022-08-09'');',
+    
+    -- CAMBIO AQUÍ: Formato JSON válido para la columna expected_result
+    '{"expected_sql": "SELECT email FROM users;"}'
 );
 
 COMMIT;
