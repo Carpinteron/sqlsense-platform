@@ -1,7 +1,22 @@
 import { apiClient } from '@/lib/axios';
 import type { ChallengeReport, CourseReport, StudentReport, Submission } from '@/types/domain';
 
+export interface CreateSubmissionPayload {
+  challengeId: string;
+  query: string;
+}
+
+export interface SubmissionCreatedResponse {
+  id: string;
+  status: string;
+  message: string;
+}
+
 export const submissionsService = {
+  async create(payload: CreateSubmissionPayload): Promise<SubmissionCreatedResponse> {
+    const { data } = await apiClient.post<SubmissionCreatedResponse>('/submissions', payload);
+    return data;
+  },
   async getById(id: string): Promise<Submission> {
     const { data } = await apiClient.get<Submission>(`/submissions/${id}`);
     return data;

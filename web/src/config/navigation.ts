@@ -66,7 +66,7 @@ export const mainNavigation: NavItem[] = [
     title: "Reportes",
     href: "/reports",
     icon: FileText,
-    roles: ["ADMIN", "PROFESSOR"],
+    roles: ["ADMIN", "PROFESSOR", "STUDENT"],
   },
   {
     title: "Usuarios",

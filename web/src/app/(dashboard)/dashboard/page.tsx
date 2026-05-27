@@ -16,6 +16,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useCursos } from "@/hooks/use-cursos";
 import { useRetos } from "@/hooks/use-retos";
 import { AdminAnalytics } from "@/components/admin/admin-analytics";
+import { StudentDashboard } from "@/components/dashboard/student-dashboard";
 import {
   Card,
   CardContent,
@@ -185,78 +186,6 @@ function ProfessorDashboard() {
   );
 }
 
-// ─── Student dashboard ────────────────────────────────────────────────────────
-
-function StudentDashboard() {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard
-          title="Cursos Inscritos"
-          value="—"
-          description="Disponible próximamente"
-          icon={BookOpen}
-          iconClass="text-blue-500"
-        />
-        <StatCard
-          title="Retos Completados"
-          value="—"
-          description="Disponible próximamente"
-          icon={Code2}
-          iconClass="text-primary"
-        />
-        <StatCard
-          title="Evaluaciones"
-          value="—"
-          description="Realizadas hasta ahora"
-          icon={Award}
-          iconClass="text-amber-500"
-        />
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="border-border/50 bg-card/50">
-          <CardHeader>
-            <CardTitle className="text-base">Explora la Plataforma</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            {[
-              { href: "/courses", icon: BookOpen, title: "Mis Cursos", desc: "Ver cursos disponibles", color: "text-blue-500" },
-              { href: "/challenges", icon: Code2, title: "Retos SQL", desc: "Practica con ejercicios", color: "text-primary" },
-              { href: "/evaluations", icon: Award, title: "Evaluaciones", desc: "Revisa tus resultados", color: "text-amber-500" },
-            ].map((a) => (
-              <Link
-                key={a.href}
-                href={a.href}
-                className="group flex items-start gap-3 rounded-xl border border-border/50 bg-muted/30 p-3 hover:border-primary/30 hover:bg-primary/5 transition-all"
-              >
-                <a.icon className={`mt-0.5 h-4 w-4 shrink-0 ${a.color}`} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{a.title}</p>
-                  <p className="text-xs text-muted-foreground">{a.desc}</p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0 mt-0.5" />
-              </Link>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-card/50 border-dashed">
-          <CardHeader>
-            <CardTitle className="text-base text-muted-foreground">
-              Mi Progreso
-            </CardTitle>
-            <CardDescription>Próximamente</CardDescription>
-          </CardHeader>
-          <CardContent className="flex h-32 items-center justify-center text-muted-foreground/50 text-sm">
-            [ Disponible con el módulo de retos ]
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -287,14 +216,24 @@ export default function DashboardPage() {
             {user?.email} &middot; Panel de control de SQLSense
           </p>
         </div>
-        {user?.role !== "STUDENT" && (
-          <Button asChild size="sm" variant="outline">
-            <Link href={user?.role === "ADMIN" ? "/admin/users" : "/courses"}>
-              {user?.role === "ADMIN" ? "Gestionar usuarios" : "Ver cursos"}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        )}
+        <Button asChild size="sm" variant="outline">
+          <Link
+            href={
+              user?.role === "ADMIN"
+                ? "/admin/users"
+                : user?.role === "STUDENT"
+                  ? "/workspace"
+                  : "/courses"
+            }
+          >
+            {user?.role === "ADMIN"
+              ? "Gestionar usuarios"
+              : user?.role === "STUDENT"
+                ? "Abrir workspace"
+                : "Ver cursos"}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
       </div>
 
       {/* Role-specific content */}

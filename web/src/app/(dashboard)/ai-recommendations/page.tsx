@@ -1,8 +1,8 @@
-import { Sparkles } from "lucide-react";
+"use client";
+
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Card } from "@/components/ui/card";
+import { AiRecommendationsPanel } from "@/components/ai/ai-recommendations-panel";
 
 export default function AiRecommendationsPage() {
   return (
@@ -10,15 +10,9 @@ export default function AiRecommendationsPage() {
       <div className="flex flex-col gap-6">
         <PageHeader
           title="Recomendaciones IA"
-          description="Sugerencias personalizadas de retos — en construcción."
+          description="Análisis y optimización SQL basados en el feedback de tus entregas."
         />
-        <Card className="border-border/50 bg-card/50 border-dashed">
-          <EmptyState
-            icon={Sparkles}
-            title="Próximamente"
-            description="Las recomendaciones completas con IA se integrarán cuando el módulo esté disponible en el backend."
-          />
-        </Card>
+        <AiRecommendationsPanel />
       </div>
     </ProtectedRoute>
   );

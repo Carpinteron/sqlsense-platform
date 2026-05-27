@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, RefreshCw, Globe } from "lucide-react";
 import { useRetos, useUpdateReto } from "@/hooks/use-retos";
 import { useCursos } from "@/hooks/use-cursos";
@@ -182,7 +183,9 @@ export function ChallengesManager({ readOnly = false }: { readOnly?: boolean }) 
                         </DropdownMenuContent>
                       </DropdownMenu>
                     ) : (
-                      <span className="text-xs text-muted-foreground">Solo lectura</span>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/workspace/${reto.id}`}>Practicar</Link>
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
