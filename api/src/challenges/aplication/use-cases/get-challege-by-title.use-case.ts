@@ -1,15 +1,15 @@
 import { Inject } from "@nestjs/common";   
-import { Reto } from "src/challenges/domain/entities/challege.entity";
-import type { IRetoRepository } from "src/challenges/domain/repositories/challege.repository";
+import { Challenge } from "src/challenges/domain/entities/challege.entity";
+import type { IChallengeRepository } from "src/challenges/domain/repositories/challege.repository";
 
-export class GetRetoByTitleUseCase {
-    constructor(@Inject('RETO_REPOSITORY') private readonly retoRepository: IRetoRepository) { }
+export class GetChallengeByTitleUseCase {
+    constructor(@Inject('CHALLENGE_REPOSITORY') private readonly challengeRepository: IChallengeRepository) { }
     
-    async execute(title: string): Promise<Reto> {
-        const reto = await this.retoRepository.findByTitle(title);
-        if (!reto) {
-            throw new Error('Reto no encontrado');
+    async execute(title: string): Promise<Challenge> {
+        const challenge = await this.challengeRepository.findByTitle(title);
+        if (!challenge) {
+            throw new Error('Challenge not found');
         }
-        return reto;
+        return challenge;
     }
 }

@@ -1,17 +1,17 @@
 import { Inject } from "@nestjs/common";
-import { Reto } from "src/challenges/domain/entities/challege.entity";
-import type { IRetoRepository } from "src/challenges/domain/repositories/challege.repository";
+import { Challenge } from "src/challenges/domain/entities/challege.entity";
+import type { IChallengeRepository } from "src/challenges/domain/repositories/challege.repository";
 
-export class DeleteRetoUseCase {
-    constructor(@Inject('RETO_REPOSITORY') private readonly retoRepository: IRetoRepository) { }
+export class DeleteChallengeUseCase {
+    constructor(@Inject('CHALLENGE_REPOSITORY') private readonly challengeRepository: IChallengeRepository) { }
     
     async execute(id: string): Promise<void> {
         // Validar que el reto exista antes de eliminar
-        const reto = await this.retoRepository.findById(id);
-        if (!reto) {
+        const challenge = await this.challengeRepository.findById(id);
+        if (!challenge) {
             throw new Error('Reto no encontrado');
         }
         
-        return this.retoRepository.delete(id);
+        return this.challengeRepository.delete(id);
     }
 }

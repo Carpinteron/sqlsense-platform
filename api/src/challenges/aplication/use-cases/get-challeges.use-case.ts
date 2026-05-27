@@ -1,11 +1,11 @@
 import { Inject } from '@nestjs/common';
-import { Reto } from "src/challenges/domain/entities/challege.entity";
-import type { IRetoRepository } from "src/challenges/domain/repositories/challege.repository";
+import { Challenge } from "src/challenges/domain/entities/challege.entity";
+import type { IChallengeRepository } from "src/challenges/domain/repositories/challege.repository";
 
-export class GetRetosUseCase {
-    constructor(@Inject('RETO_REPOSITORY') private readonly retoRepository: IRetoRepository) { }
+export class GetChallengesUseCase {
+    constructor(@Inject('CHALLENGE_REPOSITORY') private readonly challengeRepository: IChallengeRepository) { }
 
-    async execute(filter?: { courseId?: string; difficulty?: 'Easy' | 'Medium' | 'Hard'; status?: 'draft' | 'published' | 'archived' }): Promise<Reto[]> {
-        return this.retoRepository.findAll(filter);
+    async execute(filter?: { courseId?: string; difficulty?: 'Easy' | 'Medium' | 'Hard'; status?: 'draft' | 'published' | 'archived' }): Promise<Challenge[]> {
+        return this.challengeRepository.findAll(filter);
     }
 }

@@ -15,14 +15,14 @@ import { PostgresSubmissionRepository } from './infrastructure/repositories/post
 import { GetStudentReportUseCase } from './application/use-cases/get-student-report.use-case';
 
 import { CursosModule } from '../cursos/cursos.module';
-import { RetoModule } from '../challenges/reto.module';
+import { ChallengeModule } from '../challenges/Challenge.module';
 import { GetCourseReportUseCase } from './application/use-cases/get-course-report.use-case';
 
 @Module({
   imports: [
     PrismaModule,
     CursosModule,  
-    RetoModule,
+    ChallengeModule,
 
     BullModule.forRootAsync({
       inject: [ConfigService], 

@@ -1,10 +1,10 @@
-import type { Reto } from '../entities/challege.entity';
+import type { Challenge } from '../entities/challege.entity';
 
-export interface IRetoRepository {
-    create(reto: Omit<Reto, 'id' | 'createdAt'>): Promise<Reto>;
-    findById(id: string): Promise<Reto | null>;
-    findByTitle(title: string): Promise<Reto | null>;
-    findAll(filter?: { courseId?: string; difficulty?: 'Easy' | 'Medium' | 'Hard'; status?: 'draft' | 'published' | 'archived' }): Promise<Reto[]>;
-    update(id: string, updates: Partial<Omit<Reto, 'id' | 'createdAt'>>): Promise<Reto>;
+export interface IChallengeRepository {
+    create(challenge: Omit<Challenge, 'id' | 'createdAt'>): Promise<Challenge>;
+    findById(id: string): Promise<Challenge | null>;
+    findByTitle(title: string): Promise<Challenge | null>;
+    findAll(filter?: { courseId?: string; difficulty?: 'Easy' | 'Medium' | 'Hard'; status?: 'draft' | 'published' | 'archived' }): Promise<Challenge[]>;
+    update(id: string, updates: Partial<Omit<Challenge, 'id' | 'createdAt'>>): Promise<Challenge>;
     delete(id: string): Promise<void>;
 }
