@@ -1,22 +1,19 @@
-import { Award } from "lucide-react";
-import { EmptyState } from "@/components/ui/empty-state";
+"use client";
+
+import { ProtectedRoute } from "@/components/auth/protected-route";
+import { PageHeader } from "@/components/shared/page-header";
+import { EvaluationsManager } from "@/components/evaluations/evaluations-manager";
 
 export default function EvaluationsPage() {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Evaluaciones</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Revisa tus evaluaciones, intentos y calificaciones obtenidas.
-        </p>
-      </div>
-      <div className="rounded-2xl border border-border/50 bg-card/50">
-        <EmptyState
-          icon={Award}
-          title="Próximamente"
-          description="El módulo de evaluaciones llegará pronto. Aquí encontrarás el historial de intentos, notas y retroalimentación de la IA."
+    <ProtectedRoute allowedRoles={["PROFESSOR", "STUDENT", "ADMIN"]}>
+      <div className="flex flex-col gap-6">
+        <PageHeader
+          title="Evaluaciones"
+          description="Configura evaluaciones con retos, fechas, duración e intentos máximos."
         />
+        <EvaluationsManager />
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
