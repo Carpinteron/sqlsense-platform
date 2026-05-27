@@ -1,4 +1,4 @@
-export interface Reto {
+export interface Challenge {
   id: string;
   title: string;
   description: string;
@@ -11,6 +11,6 @@ export interface Reto {
   createdBy?: number;
   schemaSql?: string;
   seedDataSql?: string;
-  expectedResult?: object | null;
+  expectedResult?: object | string | null;
   createdAt?: Date | string;
 }

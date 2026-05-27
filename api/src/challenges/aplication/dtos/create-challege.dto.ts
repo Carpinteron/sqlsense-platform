@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 
-export class CreateRetoDto {
+export class CreateChallengeDto {
   @ApiProperty({ example: 'SELECT_BASICO_001' })
   @IsString()
   @IsNotEmpty()
@@ -73,5 +73,5 @@ export class CreateRetoDto {
     description: 'Resultado esperado (JSON)',
   })
   @IsOptional()
-  expectedResult?: object | null;
+  expectedResult?: object | string |null;
 }

@@ -8,7 +8,7 @@ import {
   Min,
 } from 'class-validator';
 
-export class UpdateRetoDto {
+export class UpdateChallengeDto {
   @ApiPropertyOptional({ example: 'SELECT_BASICO_001' })
   @IsOptional()
   @IsString()
