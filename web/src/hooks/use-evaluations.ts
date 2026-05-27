@@ -31,7 +31,7 @@ export function useCreateEvaluation() {
     mutationFn: (payload: CreateEvaluationPayload) => evaluationsService.create(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: EVALUATION_QUERY_KEYS.all });
-      toast.success('Evaluación creada (almacenamiento local)');
+      toast.success('Evaluación creada');
     },
     onError: () => toast.error('Error al crear evaluación'),
   });

@@ -123,7 +123,7 @@ export function EvaluationsManager() {
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
-        Las evaluaciones se guardan localmente en este navegador mientras no exista el módulo REST en el backend.
+        Las evaluaciones ahora se guardan en el backend y se comparten entre sesiones.
       </div>
 
       <div className="flex justify-end">
@@ -138,7 +138,7 @@ export function EvaluationsManager() {
             icon={Award}
             title="Sin evaluaciones"
             description="Crea una evaluación asignando retos, fechas y reglas de intentos."
-            action={{ label: "Crear evaluación", onClick: () => setOpen(true) }}
+            action={{ label: "Crear evaluación", onClick: openCreateDialog }}
           />
         </Card>
       ) : (

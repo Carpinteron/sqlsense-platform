@@ -1,11 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
 import Link from "next/link";
 import { Users, BookOpen, Code2, Send, ArrowRight } from "lucide-react";
-import { useUsers } from "@/hooks/use-users";
-import { useCursos } from "@/hooks/use-cursos";
-import { useRetos } from "@/hooks/use-retos";
+import { useAdminAnalytics } from "@/hooks/use-analytics";
 import { useAuthStore } from "@/store/auth.store";
 import { StatCard } from "@/components/shared/stat-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,43 +12,71 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 export function AdminAnalytics() {
-  const { data: users, isLoading: loadingUsers } = useUsers(true);
-  const { data: courses, isLoading: loadingCourses } = useCursos();
-  const { data: retos, isLoading: loadingRetos } = useRetos();
-  const user = useAuthStore((s) => s.user);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+  const canLoadAnalytics = Boolean(accessToken && isAuthenticated && user?.role === "ADMIN");
 
-  const stats = useMemo(() => {
-    const total = users?.length ?? 0;
-    const students = users?.filter((u) => u.role === "STUDENT").length ?? 0;
-    const professors = users?.filter((u) => u.role === "PROFESSOR").length ?? 0;
-    const published = retos?.filter((r) => r.status === "published").length ?? 0;
-    const draft = retos?.filter((r) => r.status === "draft").length ?? 0;
-    return { total, students, professors, published, draft };
-  }, [users, retos]);
+  const { data: analytics, isLoading, isError, error } = useAdminAnalytics(canLoadAnalytics);
 
-  const roleChart = [
-    { name: "Estudiantes", value: stats.students, fill: "var(--color-chart-3)" },
-    { name: "Profesores", value: stats.professors, fill: "var(--color-chart-1)" },
-    { name: "Admins", value: users?.filter((u) => u.role === "ADMIN").length ?? 0, fill: "var(--color-chart-5)" },
-  ].filter((d) => d.value > 0);
+  if (!canLoadAnalytics) {
+    return (
+      <Card className="border-border/50 bg-card/50">
+        <CardHeader>
+          <CardTitle className="text-base">Resumen de administración</CardTitle>
+          <CardDescription>
+            Esperando sesión de administrador para cargar las métricas.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Inicia sesión con una cuenta ADMIN para ver analytics globales.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  const retoChart = [
-    { name: "published", value: stats.published },
-    { name: "draft", value: stats.draft },
-    { name: "archived", value: retos?.filter((r) => r.status === "archived").length ?? 0 },
-  ].filter((d) => d.value > 0);
+  if (isError) {
+    return (
+      <Card className="border-border/50 bg-card/50">
+        <CardHeader>
+          <CardTitle className="text-base">Resumen de administración</CardTitle>
+          <CardDescription>No se pudo cargar el panel de analytics.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            {(error as { message?: string } | null)?.message ||
+              "Revisa la sesión y que el backend esté respondiendo en /analytics/admin-summary."}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  const recentUsers = [...(users ?? [])]
-    .sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())
-    .slice(0, 5);
+  const roleChart = (analytics?.usersByRole ?? []).map((item, index) => ({
+    name: item.label,
+    value: item.count,
+    fill: ["var(--color-chart-3)", "var(--color-chart-1)", "var(--color-chart-5)"][index % 3],
+  })).filter((d) => d.value > 0);
+
+  const retoChart = (analytics?.challengesByStatus ?? [])
+    .map((item, index) => ({
+      name: item.label,
+      value: item.count,
+      fill: ["var(--color-chart-1)", "var(--color-chart-3)", "var(--color-chart-5)"][index % 3],
+    }))
+    .filter((d) => d.value > 0);
+
+  const recentUsers = analytics?.recentUsers ?? [];
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Usuarios" value={stats.total} icon={Users} iconClass="text-primary" isLoading={loadingUsers} />
-        <StatCard title="Cursos" value={courses?.length ?? 0} icon={BookOpen} iconClass="text-blue-500" isLoading={loadingCourses} />
-        <StatCard title="Retos SQL" value={retos?.length ?? 0} icon={Code2} isLoading={loadingRetos} />
-        <StatCard title="Publicados" value={stats.published} description={`${stats.draft} en borrador`} icon={Send} iconClass="text-emerald-500" isLoading={loadingRetos} />
+        <StatCard title="Usuarios" value={analytics?.totalUsers ?? 0} icon={Users} iconClass="text-primary" isLoading={isLoading} />
+        <StatCard title="Cursos" value={analytics?.totalCourses ?? 0} icon={BookOpen} iconClass="text-blue-500" isLoading={isLoading} />
+        <StatCard title="Retos SQL" value={analytics?.totalChallenges ?? 0} icon={Code2} isLoading={isLoading} />
+        <StatCard title="Submissions" value={analytics?.totalSubmissions ?? 0} description={`${analytics?.totalEvaluations ?? 0} evaluaciones`} icon={Send} iconClass="text-emerald-500" isLoading={isLoading} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -60,7 +85,7 @@ export function AdminAnalytics() {
             <CardTitle className="text-base">Usuarios por rol</CardTitle>
           </CardHeader>
           <CardContent>
-            {loadingUsers ? (
+            {isLoading ? (
               <Skeleton className="h-[180px] rounded-full mx-auto w-32" />
             ) : (
               <ChartContainer config={{}} className="h-[180px]">
@@ -82,12 +107,12 @@ export function AdminAnalytics() {
             <CardTitle className="text-base">Estado de retos</CardTitle>
           </CardHeader>
           <CardContent>
-            {loadingRetos ? (
+            {isLoading ? (
               <Skeleton className="h-[180px]" />
             ) : retoChart.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">Sin retos</p>
             ) : (
-              <ChartContainer config={{ published: { color: "var(--color-chart-3)" } }} className="h-[180px]">
+              <ChartContainer config={{}} className="h-[180px]">
                 <BarChart data={retoChart}>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis dataKey="name" fontSize={10} />
@@ -105,7 +130,7 @@ export function AdminAnalytics() {
             <CardDescription>Últimos registros</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {loadingUsers ? (
+            {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-8" />)
             ) : (
               recentUsers.map((u) => (
@@ -147,11 +172,9 @@ export function AdminAnalytics() {
         </CardContent>
       </Card>
 
-      {user?.role === "ADMIN" && (
-        <p className="text-xs text-muted-foreground">
-          Métricas de submissions globales requieren un endpoint de analytics dedicado en el API.
-        </p>
-      )}
+      <p className="text-xs text-muted-foreground">
+        Resumen global servido por GET /analytics/admin-summary.
+      </p>
     </div>
   );
 }

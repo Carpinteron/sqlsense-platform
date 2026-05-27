@@ -136,7 +136,30 @@ export interface CourseReport {
   students: { studentId: number; averageScore: number }[];
 }
 
-/** Local evaluation config until backend module exists */
+export interface AnalyticsCountItem {
+  label: string;
+  count: number;
+}
+
+export interface AnalyticsUserItem {
+  id: number;
+  email: string;
+  role: string;
+  createdAt: string;
+}
+
+export interface AdminAnalyticsSummary {
+  totalUsers: number;
+  totalCourses: number;
+  totalChallenges: number;
+  totalEvaluations: number;
+  totalSubmissions: number;
+  usersByRole: AnalyticsCountItem[];
+  challengesByStatus: AnalyticsCountItem[];
+  submissionsByStatus: AnalyticsCountItem[];
+  recentUsers: AnalyticsUserItem[];
+}
+
 export type EvaluationVisibility = 'immediate' | 'after_deadline' | 'manual';
 
 export interface Evaluation {
