@@ -26,17 +26,17 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
-import { CrearRetoUseCase } from '../../aplication/use-cases/crear-reto.use-case';
-import { GetRetosUseCase } from '../../aplication/use-cases/get-retos.use-case';
-import { GetRetoByIdUseCase } from '../../aplication/use-cases/get-reto-by-id.use-case';
-import { GetRetoByTitleUseCase } from '../../aplication/use-cases/get-reto-by-title.use-case';
-import { UpdateRetoUseCase } from '../../aplication/use-cases/update-reto.use-case';
-import { DeleteRetoUseCase } from '../../aplication/use-cases/delete-reto.use-case';
-import { Reto } from '../../domain/entities/reto.entity';
-import { CreateRetoDto } from '../../aplication/dtos/create-reto.dto';
-import { UpdateRetoDto } from '../../aplication/dtos/update-reto.dto';
-import { RetoResponseDto } from '../../aplication/dtos/reto-response.dto';
-import { DeleteRetoResponseDto } from '../../aplication/dtos/delete-reto-response.dto';
+import { CrearRetoUseCase } from '../../aplication/use-cases/crear-challege.use-case';
+import { GetRetosUseCase } from '../../aplication/use-cases/get-challeges.use-case';
+import { GetRetoByIdUseCase } from '../../aplication/use-cases/get-challege-by-id.use-case';
+import { GetRetoByTitleUseCase } from '../../aplication/use-cases/get-challege-by-title.use-case';
+import { UpdateRetoUseCase } from '../../aplication/use-cases/update-challege.use-case';
+import { DeleteRetoUseCase } from '../../aplication/use-cases/delete-challege.use-case';
+import { Reto } from '../../domain/entities/challege.entity';
+import { CreateRetoDto } from '../../aplication/dtos/create-challege.dto';
+import { UpdateRetoDto } from '../../aplication/dtos/update-challege.dto';
+import { RetoResponseDto } from '../../aplication/dtos/challege-response.dto';
+import { DeleteRetoResponseDto } from '../../aplication/dtos/delete-challege-response.dto';
 
 @ApiTags('Retos')
 @ApiBearerAuth('JWT')

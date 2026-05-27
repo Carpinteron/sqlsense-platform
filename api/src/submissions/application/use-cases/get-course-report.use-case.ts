@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import type { ICursoRepository } from '../../../cursos/domain/repositories/curso.repository';
-import type { IRetoRepository } from '../../../challenges/domain/repositories/reto.repository';
+import type { IRetoRepository } from '../../../challenges/domain/repositories/challege.repository';
 import type { ISubmissionRepository } from '../../domain/repositories/submission.repository';
 import { CourseReportResponseDto, StudentScoreDto, ChallengeAverageDto } from '../dtos/course-report-response.dto';
 

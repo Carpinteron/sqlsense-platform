@@ -1,6 +1,6 @@
 import { Inject } from "@nestjs/common";   
-import { Reto } from "src/challenges/domain/entities/reto.entity";
-import type { IRetoRepository } from "src/challenges/domain/repositories/reto.repository";
+import { Reto } from "src/challenges/domain/entities/challege.entity";
+import type { IRetoRepository } from "src/challenges/domain/repositories/challege.repository";
 
 export class GetRetoByTitleUseCase {
     constructor(@Inject('RETO_REPOSITORY') private readonly retoRepository: IRetoRepository) { }

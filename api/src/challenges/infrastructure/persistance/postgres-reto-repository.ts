@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../shared/infrastructure/prisma/prisma.service';
-import type { Reto } from '../../domain/entities/reto.entity';
-import type { IRetoRepository } from '../../domain/repositories/reto.repository';
+import type { Reto } from '../../domain/entities/challege.entity';
+import type { IRetoRepository } from '../../domain/repositories/challege.repository';
 
 type ChallengeRow = Prisma.challengesGetPayload<{}>;
 

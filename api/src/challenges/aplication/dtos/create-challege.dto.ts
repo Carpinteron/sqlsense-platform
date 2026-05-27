@@ -73,5 +73,5 @@ export class CreateRetoDto {
     description: 'Resultado esperado (JSON)',
   })
   @IsOptional()
-  expectedResult?: object | null;
+  expectedResult?: object | string |null;
 }

@@ -1,4 +1,4 @@
-import type { Reto } from '../entities/reto.entity';
+import type { Reto } from '../entities/challege.entity';
 
 export interface IRetoRepository {
     create(reto: Omit<Reto, 'id' | 'createdAt'>): Promise<Reto>;
