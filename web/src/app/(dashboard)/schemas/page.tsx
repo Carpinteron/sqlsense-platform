@@ -1,22 +1,19 @@
-import { Database } from "lucide-react";
-import { EmptyState } from "@/components/ui/empty-state";
+"use client";
+
+import { ProtectedRoute } from "@/components/auth/protected-route";
+import { PageHeader } from "@/components/shared/page-header";
+import { SchemasWorkspace } from "@/components/schemas/schemas-workspace";
 
 export default function SchemasPage() {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Esquemas y Datos</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Genera esquemas SQL y datos mock con inteligencia artificial.
-        </p>
-      </div>
-      <div className="rounded-2xl border border-border/50 bg-card/50">
-        <EmptyState
-          icon={Database}
-          title="Próximamente"
-          description="Genera esquemas de base de datos completos y datos de prueba realistas usando nuestra IA. Disponible pronto para profesores."
+    <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN"]}>
+      <div className="flex flex-col gap-6">
+        <PageHeader
+          title="Esquemas y Datos"
+          description="Editor SQL, generación IA, mock data y vista previa de datasets."
         />
+        <SchemasWorkspace />
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
