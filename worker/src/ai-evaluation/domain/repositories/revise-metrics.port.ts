@@ -6,5 +6,6 @@ export interface IReviseMetricsPort {
     analysis: PerformanceAnalysis,
     userQuery: string,
     expectedQuery: string,
+    queriesIdentical: boolean,
   ): Promise<MetricsReview>;
 }

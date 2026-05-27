@@ -35,7 +35,14 @@ export class EvaluateQueryUseCase {
         dto.runnerResult.explainAnalyze,
         dto.runnerResult.executionTimeMs,
       );
-      const review = await this.metrics.review(analysis, dto.userQuery, dto.expectedQuery);
+      const queriesIdentical =
+        dto.userQuery.trim().toLowerCase() === dto.expectedQuery.trim().toLowerCase();
+      const review = await this.metrics.review(
+        analysis,
+        dto.userQuery,
+        dto.expectedQuery,
+        queriesIdentical,
+      );
 
       performanceScore = review.performanceScore;
       requiresOptimization = review.severity !== 'low';

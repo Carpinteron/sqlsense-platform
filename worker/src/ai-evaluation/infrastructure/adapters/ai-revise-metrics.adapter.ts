@@ -33,7 +33,8 @@ Rules:
 - "performanceScore" of 100 means optimal performance, 0 means very poor
 - "severity" summarizes the overall performance concern level
 - All text fields must be in Spanish
-- Output ONLY the JSON object, nothing else`;
+- Output ONLY the JSON object, nothing else
+- CRITICAL: If "queriesIdentical" is true in the input, the student wrote exactly the same query as the reference. In this case "optimizationOpportunities" MUST be an empty array and the "summary" must only describe execution performance metrics (time, rows scanned, etc.) — do NOT mention any possible improvements or index suggestions`;
 
 @Injectable()
 export class AiReviseMetricsAdapter implements IReviseMetricsPort {
@@ -46,6 +47,7 @@ export class AiReviseMetricsAdapter implements IReviseMetricsPort {
     analysis: PerformanceAnalysis,
     userQuery: string,
     expectedQuery: string,
+    queriesIdentical: boolean,
   ): Promise<MetricsReview> {
     const userPrompt = JSON.stringify(
       {
@@ -53,6 +55,7 @@ export class AiReviseMetricsAdapter implements IReviseMetricsPort {
         issues: analysis.issues,
         userQuery,
         expectedQuery,
+        queriesIdentical,
       },
       null,
       2,
