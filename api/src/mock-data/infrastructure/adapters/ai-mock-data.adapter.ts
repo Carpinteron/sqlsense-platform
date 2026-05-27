@@ -48,7 +48,7 @@ export class AiMockDataAdapter implements IMockDataGeneratorPort {
     const prompt = JSON.stringify(spec, null, 2);
     const raw = await this.ai.complete(SYSTEM_PROMPT, prompt);
     const { table, data } = this.mapper.parse(raw);
-    return { table, sql: this.buildSql(table, data) };
+    return { table, count: data.length, sql: this.buildSql(table, data) };
   }
 
   private buildSql(table: string, data: Record<string, unknown>[]): string {

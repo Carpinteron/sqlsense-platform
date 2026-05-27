@@ -1,20 +1,29 @@
 import { Module } from '@nestjs/common';
-import { AiModule } from '../ai/ai.module';
+import { BullModule } from '@nestjs/bullmq';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MockDataController } from './infrastructure/controller/mock-data.controller';
-import { GenerateMockDataUseCase } from './application/use-cases/generate-mock-data.use-case';
-import { AiMockDataAdapter } from './infrastructure/adapters/ai-mock-data.adapter';
-import { AiMockDataResponseMapper } from './infrastructure/mappers/ai-mock-data-response.mapper';
+import { EnqueueMockDataUseCase } from './application/use-cases/enqueue-mock-data.use-case';
+import { GetMockDataJobUseCase } from './application/use-cases/get-mock-data-job.use-case';
 
 @Module({
-  imports: [AiModule],
-  controllers: [MockDataController],
-  providers: [
-    GenerateMockDataUseCase,
-    AiMockDataResponseMapper,
-    {
-      provide: 'IMockDataGeneratorPort',
-      useClass: AiMockDataAdapter,
-    },
+  imports: [
+    ConfigModule,
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        connection: {
+          host: config.get<string>('REDIS_HOST', 'redis'),
+          port: config.get<number>('REDIS_PORT', 6379),
+        },
+      }),
+    }),
+    BullModule.registerQueue(
+      { name: 'mock-data-queue' },
+      { name: 'mock-data-combine-queue' },
+    ),
+    BullModule.registerFlowProducer({ name: 'mock-data-flow' }),
   ],
+  controllers: [MockDataController],
+  providers: [EnqueueMockDataUseCase, GetMockDataJobUseCase],
 })
 export class MockDataModule {}

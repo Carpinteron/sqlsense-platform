@@ -16,6 +16,7 @@ export interface MockDataSpec {
 
 export interface GenerateMockDataResponse {
   table: string;
+  count: number;
   sql: string;
 }
 

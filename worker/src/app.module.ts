@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { EvaluationModule } from './evaluation/infrastructure/evaluation.module';
+import { MockDataModule } from './mock-data/infrastructure/mock-data.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EvaluationModule } from './evaluation/infrastructure/evaluation.module'
     }),
 
     EvaluationModule,
+    MockDataModule,
   ],
 })
 export class AppModule {}

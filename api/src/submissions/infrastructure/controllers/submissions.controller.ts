@@ -39,6 +39,12 @@ import { SubmissionCreatedResponseDto } from '../../application/dtos/submission-
 import { ChallengeReportResponseDto } from '../../application/dtos/grade-report-response.dto';
 import { Submission } from '../../domain/entities/submission.interface';
 
+import { GetStudentReportUseCase } from '../../application/use-cases/get-student-report.use-case';
+import { StudentReportResponseDto } from '../../application/dtos/student-report-response.dto';
+
+import { GetCourseReportUseCase } from '../../application/use-cases/get-course-report.use-case';
+import { CourseReportResponseDto } from '../../application/dtos/course-report-response.dto';
+
 @ApiTags('Submissions')
 @ApiBearerAuth('JWT')
 @Controller('submissions')
@@ -49,6 +55,8 @@ export class SubmissionsController {
     private readonly _getSubmissionsByStudentUseCase: GetSubmissionsByStudentUseCase,
     private readonly _getSubmissionsByChallengeUseCase: GetSubmissionsByChallengeUseCase,
     private readonly _getChallengeReportUseCase: GetChallengeReportUseCase,
+    private readonly _getStudentReportUseCase: GetStudentReportUseCase,
+    private readonly _getCourseReportUseCase: GetCourseReportUseCase,
   ) {}
 
   @Post()
@@ -69,8 +77,9 @@ export class SubmissionsController {
       }
 
       const studentId = Number(req.user.id);
+      const userRole = req.user.role;
 
-      return await this._createSubmissionUseCase.execute(dto, studentId);
+      return await this._createSubmissionUseCase.execute(dto, studentId, userRole);
     } catch (error) {
       throw new BadRequestException(
         error instanceof Error ? error.message : 'Error al registrar la entrega',
@@ -140,6 +149,44 @@ export class SubmissionsController {
       );
     }
   }
+
+  //Reporte de estudiante
+  @Get('student/:studentId/report')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @SetMetadata('roles', ['PROFESSOR', 'ADMIN', 'STUDENT'])
+  @ApiOperation({ summary: 'Obtener reporte de entregas de un estudiante' })
+  @ApiParam({ name: 'studentId', example: 1 })
+  async getStudentReport(
+    @Param('studentId', ParseIntPipe) studentId: number,
+  ): Promise<StudentReportResponseDto> {
+    try {
+      return await this._getStudentReportUseCase.execute(studentId);
+    } catch (error) {
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Error al generar el reporte del estudiante',
+      );
+    }
+  }
+  //Fin reporte de estudiante
+
+  //Reporte de curso
+  @Get('course/:courseId/report')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
+  @ApiOperation({ summary: 'Obtener reporte de notas y progreso de un curso' })
+  @ApiParam({ name: 'courseId', example: 'aa0e8400-e29b-41d4-a716-446655441111' })
+  async getCourseReport(
+    @Param('courseId', ParseUUIDPipe) courseId: string,
+  ): Promise<CourseReportResponseDto> {
+    try {
+      return await this._getCourseReportUseCase.execute(courseId);
+    } catch (error) {
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Error al generar el reporte del curso',
+      );
+    }
+  }
+  //Fin reporte de curso
 
   @Get('challenge/:challengeId')
   @UseGuards(AuthGuard('jwt'), RolesGuard)

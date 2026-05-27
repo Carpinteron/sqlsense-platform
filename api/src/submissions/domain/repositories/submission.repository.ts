@@ -20,4 +20,6 @@ export interface ISubmissionRepository {
   findByChallengeId(challengeId: string): Promise<Submission[]>;
 
   getGradeReportByChallengeId(challengeId: string): Promise<ChallengeGradeReport[]>;
+
+  isStudentEnrolledInChallengeCourse(studentId: number, challengeId: string): Promise<boolean>;
 }
