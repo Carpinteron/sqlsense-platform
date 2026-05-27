@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { useTheme } from "next-themes";
 import { LogOut, Moon, Sun, User, Bell, Settings } from "lucide-react";
 import Link from "next/link";
@@ -79,18 +80,18 @@ export function Topbar() {
       <Breadcrumb className="hidden sm:flex flex-1">
         <BreadcrumbList>
           {breadcrumbs.map((crumb, i) => (
-            <BreadcrumbItem key={i}>
-              {i < breadcrumbs.length - 1 ? (
-                <>
+            <Fragment key={crumb.href ?? crumb.label}>
+              <BreadcrumbItem>
+                {i < breadcrumbs.length - 1 ? (
                   <BreadcrumbLink asChild>
                     <Link href={crumb.href!}>{crumb.label}</Link>
                   </BreadcrumbLink>
-                  <BreadcrumbSeparator />
-                </>
-              ) : (
-                <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
-              )}
-            </BreadcrumbItem>
+                ) : (
+                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                )}
+              </BreadcrumbItem>
+              {i < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+            </Fragment>
           ))}
         </BreadcrumbList>
       </Breadcrumb>
