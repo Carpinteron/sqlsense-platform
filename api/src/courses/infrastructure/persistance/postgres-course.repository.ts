@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../shared/infrastructure/prisma/prisma.service';
-import type { Curso } from '../../domain/entities/curso.entity';
-import type { ICursoRepository } from '../../domain/repositories/curso.repository';
+import type { Course } from '../../domain/entities/course.entity';
+import type { ICourseRepository } from '../../domain/repositories/course.repository';
 
 type CourseRow = Prisma.CourseGetPayload<{}>;
 
 @Injectable()
-export class CursoRepository implements ICursoRepository {
+export class CourseRepository implements ICourseRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(course: Omit<Curso, 'id' | 'createdAt'>): Promise<Curso> {
+  async create(course: Omit<Course, 'id' | 'createdAt'>): Promise<Course> {
     const createdCourse = await this.prismaService.course.create({
       data: {
         name: course.name,
@@ -24,7 +24,7 @@ export class CursoRepository implements ICursoRepository {
     return this.toDomain(createdCourse);
   }
 
-  async findById(id: string): Promise<Curso | null> {
+  async findById(id: string): Promise<Course | null> {
     const course = await this.prismaService.course.findUnique({
       where: { id },
     });
@@ -32,7 +32,7 @@ export class CursoRepository implements ICursoRepository {
     return course ? this.toDomain(course) : null;
   }
 
-  async findAll(filter?: { professorId?: number; period?: string }): Promise<Curso[]> {
+  async findAll(filter?: { professorId?: number; period?: string }): Promise<Course[]> {
     const where: any = {};
     if (filter?.professorId !== undefined) {
       where.professor_id = filter.professorId;
@@ -51,7 +51,7 @@ export class CursoRepository implements ICursoRepository {
     return courses.map((course) => this.toDomain(course));
   }
 
-  async findByCode(code: string): Promise<Curso | null> {
+  async findByCode(code: string): Promise<Course | null> {
     const course = await this.prismaService.course.findUnique({
       where: { code },
     });
@@ -59,7 +59,7 @@ export class CursoRepository implements ICursoRepository {
     return course ? this.toDomain(course) : null;
   }
 
-  async update(id: string, updates: Partial<Omit<Curso, 'id' | 'createdAt'>>): Promise<Curso> {
+  async update(id: string, updates: Partial<Omit<Course, 'id' | 'createdAt'>>): Promise<Course> {
     const updatedCourse = await this.prismaService.course.update({
       where: { id },
       data: {
@@ -130,7 +130,7 @@ export class CursoRepository implements ICursoRepository {
     }));
   }
 
-  async findCoursesByStudentId(studentId: number): Promise<Curso[]> {
+  async findCoursesByStudentId(studentId: number): Promise<Course[]> {
     const courseStudents = await this.prismaService.courseStudent.findMany({
       where: { student_id: studentId },
       select: {
@@ -153,7 +153,7 @@ export class CursoRepository implements ICursoRepository {
     return Boolean(student);
   }
 
-  private toDomain(course: CourseRow): Curso {
+  private toDomain(course: CourseRow): Course {
     return {
       id: course.id,
       name: course.name,

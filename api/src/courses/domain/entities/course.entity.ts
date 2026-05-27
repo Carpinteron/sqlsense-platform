@@ -1,4 +1,4 @@
-export interface Curso {
+export interface Course {
   id: string; // UUID
   name: string;
   code: string;
