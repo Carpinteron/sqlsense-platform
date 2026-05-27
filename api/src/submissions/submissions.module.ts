@@ -14,7 +14,7 @@ import { PostgresSubmissionRepository } from './infrastructure/repositories/post
 
 import { GetStudentReportUseCase } from './application/use-cases/get-student-report.use-case';
 
-import { CursosModule } from '../cursos/cursos.module';
+import { CursosModule } from '../courses/courses.module';
 import { RetoModule } from '../challenges/reto.module';
 import { GetCourseReportUseCase } from './application/use-cases/get-course-report.use-case';
 

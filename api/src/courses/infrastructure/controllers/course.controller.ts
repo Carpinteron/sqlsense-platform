@@ -28,19 +28,19 @@ import {
 } from '@nestjs/swagger';
 import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
 import { CrearCursoUseCase } from '../../aplication/use-cases/crear-curso.use-case';
-import { GetCursosUseCase } from '../../aplication/use-cases/get-cursos.use-case';
-import { GetCursoUseCase } from '../../aplication/use-cases/get-curso.use-case';
-import { UpdateCursoUseCase } from '../../aplication/use-cases/update-curso.use-case';
-import { DeleteCursoUseCase } from '../../aplication/use-cases/delete-curso.use-case';
-import { AddStudentToCursoUseCase } from '../../aplication/use-cases/add-student-to-curso.use-case';
+import { GetCoursesUseCase } from '../../aplication/use-cases/get-cursos.use-case';
+import { GetCourseUseCase } from '../../aplication/use-cases/get-curso.use-case';
+import { UpdateCourseUseCase } from '../../aplication/use-cases/update-curso.use-case';
+import { DeleteCourseUseCase } from '../../aplication/use-cases/delete-curso.use-case';
+import { AddStudentToCourseUseCase } from '../../aplication/use-cases/add-student-to-curso.use-case';
 import { GetCourseStudentsUseCase } from '../../aplication/use-cases/get-course-students.use-case';
 import { GetStudentCursosUseCase } from '../../aplication/use-cases/get-student-cursos.use-case';
 import { AddStudentDto } from '../../aplication/dtos/add-student.dto';
-import { Curso } from '../../domain/entities/curso.entity';
-import { CreateCursoDto } from '../../aplication/dtos/create-curso.dto';
-import { UpdateCursoDto } from '../../aplication/dtos/update-curso.dto';
-import { CursoResponseDto } from '../../aplication/dtos/curso-response.dto';
-import { DeleteCursoResponseDto } from '../../aplication/dtos/delete-curso-response.dto';
+import { Course } from '../../domain/entities/course.entity';
+import { CreateCourseDto } from '../../aplication/dtos/create-course.dto';
+import { UpdateCourseDto } from '../../aplication/dtos/update-course.dto';
+import { CourseResponseDto } from '../../aplication/dtos/course-response.dto';
+import { DeleteCourseResponseDto } from '../../aplication/dtos/delete-course-response.dto';
 import { UserResponseDto } from '../../../users/application/dtos/user-response.dto';
 
 @ApiTags('Cursos')
@@ -49,11 +49,11 @@ import { UserResponseDto } from '../../../users/application/dtos/user-response.d
 export class CursosController {
   constructor(
     private readonly crearCursoUseCase: CrearCursoUseCase,
-    private readonly getCursosUseCase: GetCursosUseCase,
-    private readonly getCursoUseCase: GetCursoUseCase,
-    private readonly updateCursoUseCase: UpdateCursoUseCase,
-    private readonly deleteCursoUseCase: DeleteCursoUseCase,
-    private readonly addStudentToCursoUseCase: AddStudentToCursoUseCase,
+    private readonly getCursosUseCase: GetCoursesUseCase,
+    private readonly getCursoUseCase: GetCourseUseCase,
+    private readonly updateCursoUseCase: UpdateCourseUseCase,
+    private readonly deleteCursoUseCase: DeleteCourseUseCase,
+    private readonly addStudentToCourseUseCase: AddStudentToCourseUseCase,
     private readonly getCourseStudentsUseCase: GetCourseStudentsUseCase,
     private readonly getStudentCursosUseCase: GetStudentCursosUseCase,
   ) {}
@@ -65,7 +65,7 @@ export class CursosController {
     summary: 'Listar cursos del profesor',
     description: 'Lista cursos filtrados por el profesor autenticado. Roles: **PROFESSOR**, **ADMIN**.',
   })
-  @ApiResponse({ status: 200, description: 'Lista de cursos', type: [CursoResponseDto] })
+  @ApiResponse({ status: 200, description: 'Lista de cursos', type: [CourseResponseDto] })
   @ApiUnauthorizedResponse()
   @ApiForbiddenResponse({ description: 'Rol no permitido' })
   async getAllCursos(@Request() req: { user: { id: number } }) {
@@ -85,7 +85,7 @@ export class CursosController {
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
   @ApiOperation({ summary: 'Obtener curso por ID (UUID)' })
   @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
-  @ApiResponse({ status: 200, type: CursoResponseDto })
+  @ApiResponse({ status: 200, type: CourseResponseDto })
   @ApiUnauthorizedResponse()
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
@@ -129,7 +129,7 @@ export class CursosController {
   @SetMetadata('roles', ['STUDENT', 'PROFESSOR', 'ADMIN'])
   @ApiOperation({ summary: 'Listar cursos de un estudiante' })
   @ApiParam({ name: 'studentId', example: 2 })
-  @ApiResponse({ status: 200, description: 'Lista de cursos', type: [CursoResponseDto] })
+  @ApiResponse({ status: 200, description: 'Lista de cursos', type: [CourseResponseDto] })
   @ApiUnauthorizedResponse()
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
@@ -155,7 +155,7 @@ export class CursosController {
     description: 'Asigna automáticamente `professorId` al usuario autenticado.',
   })
   @ApiBody({
-    type: CreateCursoDto,
+    type: CreateCourseDto,
     examples: {
       ejemploCurso: {
         summary: 'Curso de ejemplo',
@@ -168,16 +168,16 @@ export class CursosController {
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'Curso creado', type: CursoResponseDto })
+  @ApiResponse({ status: 201, description: 'Curso creado', type: CourseResponseDto })
   @ApiResponse({ status: 400, description: 'Código duplicado o error de validación' })
   @ApiUnauthorizedResponse()
   @ApiForbiddenResponse()
   async crearCurso(
-    @Body() dto: CreateCursoDto,
+    @Body() dto: CreateCourseDto,
     @Request() req: { user: { id: number } },
   ) {
     try {
-      const cursoData: Omit<Curso, 'id' | 'createdAt'> = {
+      const cursoData: Omit<Course, 'id' | 'createdAt'> = {
         name: dto.name,
         code: dto.code,
         period: dto.period,
@@ -201,7 +201,7 @@ export class CursosController {
   })
   @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
   @ApiBody({
-    type: UpdateCursoDto,
+    type: UpdateCourseDto,
     examples: {
       parcial: {
         summary: 'Actualización parcial',
@@ -212,13 +212,13 @@ export class CursosController {
       },
     },
   })
-  @ApiResponse({ status: 200, type: CursoResponseDto })
+  @ApiResponse({ status: 200, type: CourseResponseDto })
   @ApiUnauthorizedResponse()
   @ApiForbiddenResponse({ description: 'Sin permiso sobre el curso' })
   @ApiNotFoundResponse()
-  async updateCurso(
+  async updateCourse(
     @Param('id') id: string,
-    @Body() updates: UpdateCursoDto,
+    @Body() updates: UpdateCourseDto,
     @Request() req: { user: { id: number; role: string } },
   ) {
     try {
@@ -227,7 +227,7 @@ export class CursosController {
         throw new BadRequestException('No tienes permiso para actualizar este curso');
       }
 
-      const safeUpdates: Partial<Omit<Curso, 'id' | 'createdAt'>> = {};
+      const safeUpdates: Partial<Omit<Course, 'id' | 'createdAt'>> = {};
       if (updates.name !== undefined) safeUpdates.name = updates.name;
       if (updates.code !== undefined) safeUpdates.code = updates.code;
       if (updates.period !== undefined) safeUpdates.period = updates.period;
@@ -249,11 +249,11 @@ export class CursosController {
   @SetMetadata('roles', ['PROFESSOR', 'ADMIN'])
   @ApiOperation({ summary: 'Eliminar curso', description: 'Solo el dueño o **ADMIN**.' })
   @ApiParam({ name: 'id', example: '550e8400-e29b-41d4-a716-446655440000' })
-  @ApiResponse({ status: 200, type: DeleteCursoResponseDto })
+  @ApiResponse({ status: 200, type: DeleteCourseResponseDto })
   @ApiUnauthorizedResponse()
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
-  async deleteCurso(@Param('id') id: string, @Request() req: { user: { id: number; role: string } }) {
+  async deleteCourse(@Param('id') id: string, @Request() req: { user: { id: number; role: string } }) {
     try {
       const curso = await this.getCursoUseCase.execute(id);
       if (curso.professorId !== req.user.id && req.user.role !== 'ADMIN') {
@@ -287,7 +287,7 @@ export class CursosController {
         throw new BadRequestException('studentId debe ser un número');
       }
 
-      await this.addStudentToCursoUseCase.execute(id, studentId);
+      await this.addStudentToCourseUseCase.execute(id, studentId);
       return { message: 'Estudiante añadido al curso' };
     } catch (error) {
       if (error instanceof Error && error.message.includes('no encontrado')) {
