@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Play,
@@ -62,12 +62,7 @@ export function SqlChallengeWorkspace({ challengeId }: { challengeId: string }) 
     () => history?.filter((s) => s.challengeId === challengeId) ?? [],
     [history, challengeId],
   );
-
-  useEffect(() => {
-    if (challengeHistory[0] && !lastSubmission) {
-      setLastSubmission(challengeHistory[0]);
-    }
-  }, [challengeHistory, lastSubmission]);
+  const selectedSubmission = lastSubmission ?? challengeHistory[0] ?? null;
 
   const updateSql = useCallback(
     (sql: string) => {
@@ -217,6 +212,14 @@ export function SqlChallengeWorkspace({ challengeId }: { challengeId: string }) 
                   {challenge.schemaSql || "-- Sin schema definido"}
                 </pre>
               </TabsContent>
+                <div className="mt-3">
+                  <p className="text-label mb-2 flex items-center gap-1">
+                    <FileCode className="h-3 w-3" /> Consulta esperada (IA)
+                  </p>
+                  <pre className="text-xs font-mono bg-muted/40 rounded-lg p-3 overflow-x-auto max-h-48">
+                    {challenge.expectedResult ?? '-- No hay consulta esperada'}
+                  </pre>
+                </div>
               <TabsContent value="seed" className="mt-2">
                 <pre className="text-xs font-mono bg-muted/40 rounded-lg p-3 overflow-x-auto max-h-48">
                   {challenge.seedDataSql || "-- Sin seed data"}
@@ -281,8 +284,8 @@ export function SqlChallengeWorkspace({ challengeId }: { challengeId: string }) 
             />
           </div>
 
-          {lastSubmission && (
-            <SubmissionFeedbackPanel submission={lastSubmission} />
+          {selectedSubmission && (
+            <SubmissionFeedbackPanel submission={selectedSubmission} />
           )}
 
           {/* Bottom: console / output / history */}

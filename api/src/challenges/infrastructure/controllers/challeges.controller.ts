@@ -26,7 +26,6 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { RolesGuard } from '../../../auth/infrastructure/guards/roles.guard';
-import { CrearChallengeUseCase } from '../../aplication/use-cases/crear-challege.use-case';
 import { GetChallengesUseCase } from '../../aplication/use-cases/get-challeges.use-case';
 import { GetChallengeByIdUseCase } from '../../aplication/use-cases/get-challege-by-id.use-case';
 import { GetChallengeByTitleUseCase } from '../../aplication/use-cases/get-challege-by-title.use-case';
@@ -37,13 +36,14 @@ import { CreateChallengeDto } from '../../aplication/dtos/create-challege.dto';
 import { UpdateChallengeDto } from '../../aplication/dtos/update-challege.dto';
 import { ChallengeResponseDto} from '../../aplication/dtos/challege-response.dto';
 import { DeleteChallengeResponseDto } from '../../aplication/dtos/delete-challege-response.dto';
+import { CreateChallengeWithExpectedQueryUseCase } from '../../aplication/use-cases/create-challenge-with-expected-query.use-case';
 
 @ApiTags('Challenges')
 @ApiBearerAuth('JWT')
 @Controller('challenges')
 export class ChallengesController {
   constructor(
-    private readonly crearChallengeUseCase: CrearChallengeUseCase,
+    private readonly createChallengeWithExpectedQueryUseCase: CreateChallengeWithExpectedQueryUseCase,
     private readonly getChallengesUseCase: GetChallengesUseCase,
     private readonly getChallengeByIdUseCase: GetChallengeByIdUseCase,
     private readonly getChallengeByTitleUseCase: GetChallengeByTitleUseCase,
@@ -144,7 +144,6 @@ export class ChallengesController {
           courseId: '550e8400-e29b-41d4-a716-446655440000',
           schemaSql: 'CREATE TABLE users(id INT PRIMARY KEY, created_at TIMESTAMP);',
           seedDataSql: 'INSERT INTO users(id, created_at) VALUES (1, NOW());',
-          expectedResult: { rows: [{ id: 1 }] },
         },
       },
     },
@@ -157,21 +156,7 @@ export class ChallengesController {
     @Request() req: { user: { id: number } },
   ) {
     try {
-      const challengeData: Omit<Challenge, 'id' | 'createdAt'> = {
-        title: dto.title,
-        description: dto.description,
-        difficulty: dto.difficulty,
-        tags: dto.tags,
-        databaseEngine: dto.databaseEngine,
-        timeLimit: dto.timeLimit,
-        status: dto.status ?? 'draft',
-        courseId: dto.courseId,
-        createdBy: req.user.id,
-        schemaSql: dto.schemaSql,
-        seedDataSql: dto.seedDataSql,
-        expectedResult: dto.expectedResult,
-      };
-      return await this.crearChallengeUseCase.execute(challengeData);
+      return await this.createChallengeWithExpectedQueryUseCase.execute(dto, req.user.id);
     } catch (error) {
       throw new BadRequestException(
         error instanceof Error ? error.message : 'Error al crear el reto',

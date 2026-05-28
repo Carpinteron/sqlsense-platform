@@ -12,7 +12,7 @@ export interface CreateRetoPayload {
   courseId?: string;
   schemaSql?: string;
   seedDataSql?: string;
-  expectedResult?: object | null;
+  expectedResult?: string | null;
 }
 
 export type UpdateRetoPayload = Partial<CreateRetoPayload>;

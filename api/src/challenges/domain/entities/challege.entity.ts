@@ -11,6 +11,6 @@ export interface Challenge {
   createdBy?: number;
   schemaSql?: string;
   seedDataSql?: string;
-  expectedResult?: object | string | null;
+  expectedResult?: string | null;
   createdAt?: Date | string;
 }

@@ -55,7 +55,10 @@ export class UpdateChallengeDto {
   @IsString()
   seedDataSql?: string;
 
-  @ApiPropertyOptional({ example: { rows: [{ id: 1 }] } })
+  @ApiPropertyOptional({
+    example: 'SELECT id, name FROM users ORDER BY created_at DESC;',
+    description: 'Consulta SQL esperada generada por IA',
+  })
   @IsOptional()
-  expectedResult?: object | null;
+  expectedResult?: string | null;
 }

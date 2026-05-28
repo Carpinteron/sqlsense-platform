@@ -16,5 +16,6 @@ import { AiExpectedQueryResponseMapper } from './infrastructure/mappers/ai-expec
       useClass: AiExpectedQueryAdapter,
     },
   ],
+  exports: [GenerateExpectedQueryUseCase],
 })
 export class ExpectedQueryModule {}

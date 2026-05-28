@@ -26,7 +26,7 @@ export interface Reto {
   createdBy?: number;
   schemaSql?: string;
   seedDataSql?: string;
-  expectedResult?: object | null;
+  expectedResult?: string | null;
   createdAt?: string;
 }
 
