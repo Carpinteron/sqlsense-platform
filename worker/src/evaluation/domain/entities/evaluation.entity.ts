@@ -38,7 +38,7 @@ export class Evaluation {
   }
 
   public static determineFinalStatus(score: number, requiresOptimization: boolean): 'ACCEPTED' | 'WRONG_ANSWER' | 'OPTIMIZATION_REQUIRED' {
-    if (score < 3) {
+    if (score < 50) {
       return 'WRONG_ANSWER';
     }
 
