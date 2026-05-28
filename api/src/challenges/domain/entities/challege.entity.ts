@@ -1,0 +1,16 @@
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  tags?: string[];
+  databaseEngine?: string;
+  timeLimit?: number;
+  status?: 'draft' | 'published' | 'archived';
+  courseId?: string;
+  createdBy?: number;
+  schemaSql?: string;
+  seedDataSql?: string;
+  expectedResult?: string | null;
+  createdAt?: Date | string;
+}
