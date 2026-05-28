@@ -29,9 +29,35 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Award } from "lucide-react";
+import { useAuthStore } from "@/store/auth.store";
+
+function buildEvaluationPayload(form: {
+  title: string;
+  description: string;
+  courseId: string;
+  challengeIds: string[];
+  startDate: string;
+  endDate: string;
+  durationMinutes: number;
+  maxAttempts: number;
+  resultsVisibility: EvaluationVisibility;
+}) {
+  return {
+    title: form.title,
+    description: form.description.trim() || undefined,
+    courseId: form.courseId,
+    challengeIds: form.challengeIds,
+    startDate: form.startDate || undefined,
+    endDate: form.endDate || undefined,
+    durationMinutes: form.durationMinutes,
+    maxAttempts: form.maxAttempts,
+    resultsVisibility: form.resultsVisibility,
+  };
+}
 
 export function EvaluationsManager() {
-  const { data: evaluations, isLoading } = useEvaluations();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { data: evaluations, isLoading } = useEvaluations(isAuthenticated);
   const { data: courses } = useCursos();
   const { data: retos } = useRetos();
   const create = useCreateEvaluation();
@@ -102,14 +128,21 @@ export function EvaluationsManager() {
   };
 
   const handleSubmit = async () => {
-    if (editEvaluation) {
-      await update.mutateAsync({ id: editEvaluation.id, payload: form });
-    } else {
-      await create.mutateAsync(form);
+    const payload = buildEvaluationPayload(form);
+
+    try {
+      if (editEvaluation) {
+        await update.mutateAsync({ id: editEvaluation.id, payload });
+      } else {
+        await create.mutateAsync(payload);
+      }
+
+      setOpen(false);
+      setEditEvaluation(null);
+      resetForm();
+    } catch {
+      // The hooks already surface a toast. Swallow the rejection so it doesn't reach the global handler.
     }
-    setOpen(false);
-    setEditEvaluation(null);
-    resetForm();
   };
 
   const visibilityLabels: Record<EvaluationVisibility, string> = {

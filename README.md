@@ -16,6 +16,8 @@ La solución está dividida en dos aplicaciones NestJS:
 - Autenticación con login, refresh, logout y profile en `api/src/auth`.
 - CRUD de cursos en `api/src/cursos`.
 - CRUD de retos en `api/src/challenges`.
+- CRUD de evaluaciones y reportes de submissions en `api/src/evaluations` y `api/src/submissions`.
+- Resumen administrativo y métricas globales en `api/src/analytics`.
 - Generación y regeneración de schemas con apoyo de IA en `api/src/schemas`.
 - Generación de mock data en `api/src/mock-data`.
 - Integración con el servicio de IA en `api/src/ai` usando `AI_API_KEY`, `AI_ENDPOINT` y `AI_MODEL`.
@@ -43,6 +45,11 @@ Eso levanta:
 - API en `localhost:3001`
 - Worker
 
+Importante:
+
+- Ese comando levanta el backend real que consume el frontend.
+- Si vuelves a cambiar el backend, reconstruye la imagen con `docker compose build backend` y recrea el contenedor con `docker compose up -d backend`.
+
 ## Frontend
 
 El frontend vive en `web/` como una app Next.js independiente. No hace falta mezclarlo con el backend para mantener la arquitectura limpia.
@@ -51,7 +58,7 @@ Para levantarlo en desarrollo:
 
 ```bash
 cd web
-npm run dev -- --webpack
+npm run dev
 ```
 
 El frontend queda en `http://localhost:3000`.
@@ -66,6 +73,8 @@ Notas:
 - En Windows, si `3000` ya está ocupado, Next puede usar otro puerto disponible.
 - El frontend consume la API del backend por HTTP en `http://localhost:3001`.
 - El login del frontend usa `POST /auth/login` contra ese backend; Swagger sigue disponible en `/api`.
+- El panel de admin llama a `GET /analytics/admin-summary` y el dashboard de evaluaciones usa `GET /evaluations`; ambos requieren sesión válida.
+- Si el backend no está levantado o usas una imagen vieja, los paneles pueden mostrar estados vacíos o `404`/`401`.
 - La API habilita CORS para permitir el origen del frontend en `http://localhost:3000`.
 - Si quieres abrir el formulario de acceso directamente, usa `/auth/login`.
 - Si ves advertencias de Git sobre `LF`/`CRLF`, son solo del formato de fin de línea en Windows y no rompen el proyecto.
@@ -107,6 +116,8 @@ Swagger está en `/api`, pero el frontend se conecta al backend real en `http://
 - **Users**: CRUD de usuarios, cambiar roles (ADMIN)
 - **Cursos**: CRUD de cursos (PROFESSOR/ADMIN)
 - **Retos**: CRUD de retos SQL
+- **Evaluations**: CRUD de evaluaciones por curso
+- **Analytics**: Resumen administrativo global
 - **Schemas**: Generar y regenerar schemas con IA
 - **Mock Data**: Generar datos fake para tablas con IA
 

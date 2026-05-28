@@ -12,6 +12,8 @@ src/
 ├── users/                # Gestión de usuarios y roles (ADMIN)
 ├── cursos/               # CRUD de cursos (PROFESSOR/ADMIN)
 ├── challenges/           # CRUD de retos SQL
+├── evaluations/          # CRUD de evaluaciones por curso
+├── analytics/            # Resumen administrativo global
 ├── schemas/              # Generación de schemas con IA
 ├── mock-data/            # Generación de mock data con IA
 ├── ai/                   # Integración con LLM
@@ -60,6 +62,8 @@ npm run start:dev
 ```
 
 API disponible en: `http://localhost:3000`
+
+Si trabajas con el frontend en paralelo, recuerda que debe apuntar a `http://localhost:3001` cuando la API corre con Docker.
 
 ## Con Docker (recomendado)
 
@@ -125,6 +129,29 @@ Respuesta:
 
 ```bash
 curl -X GET http://localhost:3001/auth/profile \
+  -H "Authorization: Bearer <access_token>"
+```
+
+### Resumen administrativo
+
+```bash
+curl -X GET http://localhost:3001/analytics/admin-summary \
+  -H "Authorization: Bearer <access_token>"
+```
+
+Este endpoint está restringido a `ADMIN`.
+
+### Listar evaluaciones
+
+```bash
+curl -X GET http://localhost:3001/evaluations \
+  -H "Authorization: Bearer <access_token>"
+```
+
+### Evaluaciones por curso
+
+```bash
+curl -X GET http://localhost:3001/evaluations/course/<courseId> \
   -H "Authorization: Bearer <access_token>"
 ```
 
@@ -224,5 +251,6 @@ npm run format         # Formato con Prettier
 
 - El API key de IA va en `AI_API_KEY=` dentro de `.env`, nunca en el código
 - Todos los endpoints requieren autenticación Bearer JWT excepto `/auth/login`
+- `GET /auth/profile` y `GET /analytics/admin-summary` requieren rol `ADMIN`
 - Los datos de prueba (usuario admin) se crean automáticamente en `postgres/init.sql`
 - Roles soportados: `STUDENT`, `PROFESSOR`, `ADMIN`

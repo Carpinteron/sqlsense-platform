@@ -67,11 +67,4 @@ export class CreateChallengeDto {
   @IsOptional()
   @IsString()
   seedDataSql?: string;
-
-  @ApiPropertyOptional({
-    example: { rows: [{ id: 1, name: 'Ana' }] },
-    description: 'Resultado esperado (JSON)',
-  })
-  @IsOptional()
-  expectedResult?: object | string |null;
 }

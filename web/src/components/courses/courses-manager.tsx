@@ -22,10 +22,11 @@ import { DeleteCourseModal } from "@/components/courses/delete-course-modal";
 
 export function CoursesManager({ isAdmin = false }: { isAdmin?: boolean }) {
   const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data: courses, isLoading, isError, refetch } = useCursos();
   const { data: users } = useUsers(isAdmin);
   const { data: retos } = useRetos();
-  const { data: evaluations } = useEvaluations();
+  const { data: evaluations } = useEvaluations(isAuthenticated);
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editCourse, setEditCourse] = useState<Curso | null>(null);

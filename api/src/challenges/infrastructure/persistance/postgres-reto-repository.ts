@@ -106,7 +106,11 @@ export class ChallengeRepository implements IChallengeRepository {
       createdBy: challenge.created_by ?? undefined,
       schemaSql: challenge.schema_sql ?? undefined,
       seedDataSql: challenge.seed_data_sql ?? undefined,
-      expectedResult: (challenge.expected_result as object | null) ?? undefined,
+      expectedResult: challenge.expected_result == null
+        ? undefined
+        : typeof challenge.expected_result === 'string'
+          ? challenge.expected_result
+          : JSON.stringify(challenge.expected_result),
       createdAt: challenge.created_at ?? undefined,
     };
   }

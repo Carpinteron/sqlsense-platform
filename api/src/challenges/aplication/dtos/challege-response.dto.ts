@@ -37,8 +37,12 @@ export class ChallengeResponseDto {
   @ApiPropertyOptional({ example: 'INSERT INTO ...' })
   seedDataSql?: string;
 
-  @ApiPropertyOptional({ example: { rows: [{ id: 1 }] }, nullable: true })
-  expectedResult?: object | null;
+  @ApiPropertyOptional({
+    example: 'SELECT id, name FROM users ORDER BY created_at DESC;',
+    nullable: true,
+    description: 'Consulta SQL esperada generada por IA',
+  })
+  expectedResult?: string | null;
 
   @ApiPropertyOptional({ example: '2026-01-01T00:00:00.000Z' })
   createdAt?: Date | string;

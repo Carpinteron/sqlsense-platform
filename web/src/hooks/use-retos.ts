@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { retosService, CreateRetoPayload, UpdateRetoPayload } from '@/services/retos.service';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export const RETO_QUERY_KEYS = {
   all: ['retos'] as const,
@@ -24,11 +25,18 @@ export function useReto(id: string, enabled = true) {
 
 export function useCreateReto() {
   const qc = useQueryClient();
+  const router = useRouter();
+
   return useMutation({
     mutationFn: (payload: CreateRetoPayload) => retosService.create(payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: RETO_QUERY_KEYS.all });
       toast.success('Reto creado exitosamente');
+      try {
+        if (data?.id) router.push(`/workspace/${data.id}`);
+      } catch {
+        // ignore routing errors
+      }
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
       toast.error(error.response?.data?.message || 'Error al crear el reto');

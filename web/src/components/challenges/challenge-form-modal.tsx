@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -63,7 +63,11 @@ export function ChallengeFormModal({ open, onOpenChange, reto }: ChallengeFormMo
     },
   });
 
-  const schemaSql = form.watch("schemaSql") ?? "";
+  const schemaSql = useWatch({ control: form.control, name: "schemaSql" }) ?? "";
+  const difficulty = useWatch({ control: form.control, name: "difficulty" });
+  const status = useWatch({ control: form.control, name: "status" });
+  const courseId = useWatch({ control: form.control, name: "courseId" });
+  const seedDataSql = useWatch({ control: form.control, name: "seedDataSql" }) ?? "";
 
   useEffect(() => {
     if (reto) {
@@ -136,7 +140,7 @@ export function ChallengeFormModal({ open, onOpenChange, reto }: ChallengeFormMo
             <div className="space-y-2">
               <Label>Dificultad</Label>
               <Select
-                value={form.watch("difficulty")}
+                value={difficulty}
                 onValueChange={(v) => form.setValue("difficulty", v as FormData["difficulty"])}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -150,7 +154,7 @@ export function ChallengeFormModal({ open, onOpenChange, reto }: ChallengeFormMo
             <div className="space-y-2">
               <Label>Estado</Label>
               <Select
-                value={form.watch("status")}
+                value={status}
                 onValueChange={(v) => form.setValue("status", v as FormData["status"])}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -172,7 +176,7 @@ export function ChallengeFormModal({ open, onOpenChange, reto }: ChallengeFormMo
             <div className="space-y-2">
               <Label>Curso</Label>
               <Select
-                value={form.watch("courseId") || "none"}
+                value={courseId || "none"}
                 onValueChange={(v) => form.setValue("courseId", v === "none" ? "" : v)}
               >
                 <SelectTrigger><SelectValue placeholder="Sin curso" /></SelectTrigger>
@@ -200,7 +204,7 @@ export function ChallengeFormModal({ open, onOpenChange, reto }: ChallengeFormMo
           <div className="space-y-2">
             <Label>Seed data SQL</Label>
             <SqlEditor
-              value={form.watch("seedDataSql") ?? ""}
+              value={seedDataSql}
               onChange={(v) => form.setValue("seedDataSql", v)}
               height="120px"
             />

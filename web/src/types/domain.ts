@@ -26,7 +26,7 @@ export interface Reto {
   createdBy?: number;
   schemaSql?: string;
   seedDataSql?: string;
-  expectedResult?: object | null;
+  expectedResult?: string | null;
   createdAt?: string;
 }
 
@@ -63,8 +63,6 @@ export interface FieldSpec {
   from?: string;
   to?: string;
   values?: string[];
-  nullPercent?: number;
-  edgeCases?: string[];
 }
 
 export interface MockDataJob {
